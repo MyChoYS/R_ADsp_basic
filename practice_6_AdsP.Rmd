@@ -1,0 +1,292 @@
+---
+title: "데이터마트"
+mainfont: NanumGothic
+output:
+  word_document: default
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+데이터마트란 데이터의 한 부분으로서 특정 사용자가 관심을 갖는 데이터들을 담은 비교적 작은 규모의 데이터 웨어하우스이다. 데이터 웨어하우스와 데이터 마트의 구분은 사용자의 기능 및 제공 범위를 기준으로 한다. 
+![데이터마트](/Users/bogangjun/Desktop/datamart.png)
+
+## 1. R reshape2의 melt(), cast() 함수
+설문조사 데이처를 받았을 때 혹은 분석 과정 중의 데이터셋이 분석가가 하고자 하는 통계 분석에 필요한 데이터 구조로 딱 맞아 떨어지지 않는 경우가 굉장히 많다. 이때 필요한 것이 데이터를 분석 목적, 기법에 맞게 자유자재로 변형하여 재구조화(reshape)하는 일이다. 실제로 reshape 함수는 실무 업무에 많이 사용된다.
+
+```{r}
+# install reshape package
+#install.packages("reshape")
+#install.packages("reshape2")
+library(reshape); library(reshape2)
+
+data(airquality) #let's use airquality data
+??airquality
+head(airquality)
+
+names(airquality) <- tolower(names(airquality))
+```
+
+melt()함수의 이용: melt()를 이용하여 여러 변수를 하나의 명목형 변수로 reshape하게되면 R의 장점인 시각화를 하기가 쉬워진다. 
+```{r}
+T <- melt(airquality, id = c("month", "day"), na.rm = TRUE)
+T
+```
+cast() 함수의 이용
+```{r}
+cast(T, day~month~variable)
+```
+
+```{r}
+b <- acast(T, month ~ variable, mean)
+b
+```
+
+
+## 2. sqldf를 이용한 데이터 분석
+R에는 많은 데이터 처리 함수가 있어 데이터를 편리하게 핸들링 할 수 있는 장점이 있다. sqldf 패키지는 SQL 문을 사용할 줄 아는 사용자가 쉽게 데이터에 접근할 수 있게 해준다. 
+
+```{r}
+#install.packages("sqldf")
+library(sqldf)
+
+data(iris)
+sqldf("select*from iris limit 10")
+sqldf("select count(*) from iris where species like 'se%'")
+```
+
+## 3. plyr
+ply() 함수는 앞의 두 개의 문자를 접두사로 가지는데, 첫 번째 문자는 입력하는 데이터 형태를 나타내고, 두번째 문자는 출력하는 데이터 형태를 나타낸다. 예를들면, ddply는 데이터 프레임을 입력받아서, 어떤 데이터 가공한 후 다시 데이터프레임으로 출력하게 된다.
+
+plyr 패키지는 데이터를 받아서 분리하고(split), 분할된 데이터에 특정 함수를 적용(apply), 결과를 재결합(combine) 처리하는 함수를 제공한다. 
+
+apply 함수와 multi-core 사용함수를 이용하면 for loop를 사용하지 않고 매우 간단하게 for loop 기능을 처리할 수 있고, apply 함수에 기반에 데이터와 출력변수를 동시에 배열로 치환하여 처리가 가능하다. 
+
+```{r}
+set.seed(1) #난수를 생성할 때마다 같은 값의 난수들을 생성
+d <- data.frame(year = rep(2012:2014, each = 6), count = round(runif(9,0,20)))
+# 2012-2014년 각각 6개를 만들고 count라는 변수에 난수를 생선하는 runif(생성할 난수의 수, 최소값, 최대값) 함수를 사용하여 0에서 20사이의 정수 9개를 저장
+d
+```
+```{r}
+# install plyr package
+#install.packages("plyr")   ##ddply 응용 이라고 구글에 검색
+library(plyr)
+?ddply
+ddply(d, "year", function(x){
+  mean.count = mean(x$count)
+  sd.count = sd(x$count)
+  cv = sd.count/mean.count
+  data.frame(cv.count = cv)
+})
+```
+
+
+```{r}
+ddply(d, .(year), summarise, mean.count = mean(count))
+```
+```{r}
+ddply(d, .(year), transform, total.count = sum(count))
+```
+
+## 4. 데이터 테이블
+데이터 프레임과 유사하지만 보다 빠른 그룹화grouping, 순서화ordering, 짧은 문장 지원 측면 및 데이터 분석 속도에서 데이터 프레임보다 연산속도가 빠르다.**
+```{r}
+#install.packages("data.table")
+library(data.table)
+DT <- data.table(x =c("b", "b" , "b", "a", "a"), v =rnorm(5))
+DT
+```
+
+```{r}
+data(cars)
+str(cars)
+```
+데이터 프레임으로 된 데이터를 데이터 테이블 형식으로 불러와 CARS에 저장하자.
+```{r}
+CARS <- as.data.table(cars)
+```
+
+```{r}
+str(CARS)
+```
+
+데이터 테이블과 데이터 프레임의 차이를 알아보자. 지금까지 생성된 데이터 테이블 형식의 데이터를 살펴보기 위해 tables()기능을 이용해 크기가 어떠한지, key는 있는지 용량은 얼마인지 알아본다. 
+```{r}
+tables()
+```
+
+table() 함수는 모든 데이터 테이블 객체의 목록을 저장한 데이터 테이블을 반환한다. 
+```{r}
+sapply(CARS, class)
+```
+key를 이용한 빠른 데이터 접근. 
+```{r}
+setkey(DT, x)
+DT
+setkey(CARS,speed)
+```
+
+```{r}
+tables()
+```
+
+```{r}
+DT["b"] #"b"가 들어간 모든 데이터를 표시하고 싶은 경우
+DT["b", mult = 'first'] #"b"가 들어간 첫번째 결과
+DT["b", mult = "last"]
+```
+
+## 5. 결측치 처리와 이상값 검색
+
+일반적으로 결측/무응답을 가진 자료를 분석할 때는 다음 사항을 고려한다. 다음을 고려하여 효율적인 방법으로 처리하여 데이터의 정보가 손실되거나 왜곡되는 것을 피해야 한다.
+
+첫째, 효율성efficiency 문제
+
+둘째, 자료처리 및 분석의 복잡성 문제(답변곤란 등)
+
+셋째, 관측된 자료와 결측된 자료 간의 차이에서 기인하는 bias
+
+ why 결측값이 존재하는지?
+
+### 5.1 결측값의 대치법 imputation of missiong values
+결측/무응답을 가진 자료를 무시하지 않고 분석할 수 있는 통계 방법론의 하나인 대치법imputation은 다음과 같다. 
+
+#### 1) 완전히 응답한 개체분석 Complete Analysis
+불완전 자료는 모두 무시하고 완전하게 관측된 자료만으로 표준적 통계기법에 의해 분석하는 방법. 분석이 쉽다는 장점. 그러나 부분적으로 관측된 자료를 무시하므로 생기는 효율성 상실. 통계적 추론의 타당성 문제
+
+#### 2) 평균대치법 Mean imputation
+관측 또는 실험되어 얻어진 자료의 적절한 평균값으로 결측값을 대치해서 불완전한 자료를 완전한 자료로 만든 후, 완전한 자료를 마치 관측된 자료라 생각하고 분석하는 방법
+
+#### 3) 단순확률 대치법 Single stochastic imputation
+평균대치법에서 추정량 표준오차의 과소추정 문제를 보완하고자 고안된 방법으로 Hot-deck2 방법, NearestNeighbour2 방법 등이 있다. 기본적 아이디어는 평균대치법에서 관측된 자료를 토대로 추정된 통계량으로 결측값을 대치할 때 어떤 적절한 확률값을 부여한 후 대치하는 방법
+
+#### 4) 다중대치법 Multiple imputation 
+단순확률대치법을 여러번 시행하여 분석하는 방법. 결측치를 가진 자료 분석에 사용하기 용이하고, 통계적 추론에 사용된 통계량의 효율성 및 일치성 등의 문제를 부분적으로 보완해준다. 그러나 추정량 표준오차의 과소추정 또는 계산의 난해성의 문제를 여전히 가지고 있다. 
+
+### 5.2 데이터 기초 통계
+```{r}
+data(iris)
+head(iris)
+```
+```{r}
+str(iris)
+```
+
+```{r}
+summary(iris)
+```
+
+```{r}
+cov(iris[,1:4])
+```
+
+```{r}
+cor(iris[,1:4])
+```
+### 5.3 결측값 처리
+R에서 결측값 처리 관련 패키지는 Amelia2, Mice, mistools 등이 있다. 아래는 Amelia 패키지를 사용한 예시. 결측값은 NA (not available), 불가능한 값은 NaN (not a number)으로 처리한다.
+```{r}
+y <- c(1,2,3,NA)
+is.na(y)
+table(is.na(y))
+which(is.na(y))
+y[4]
+```
+```{r}
+data(iris)
+iris[iris$Petal.Width == 0.2, "Petal.Width"] <- NA
+View(iris)
+table(is.na(iris$Petal.Width))
+which(is.na(iris$Petal.Width))
+```
+
+```{r}
+is.na(iris$Petal.Width)
+```
+
+```{r}
+#결측값을 제거하여 문제를 해결하는 방법
+mean(y)
+mean(y, na.rm = TRUE)
+```
+
+```{r}
+library(reshape)
+data(french_fries)
+??french_fries
+```
+
+```{r}
+table(complete.cases(french_fries))
+french_fries[!complete.cases(french_fries),]
+## !는 '아니다' 라는 뜻
+
+french_fries_complete <-french_fries[complete.cases(french_fries),] 
+##하면 완전한 열로 채워진 자료 완성
+
+```
+Amelia package 사용(가상값 '= m' 을 이용, 다중대치)
+```{r}
+#install.packages("Amelia")
+library(Amelia)
+data(freetrade)
+??freetrade
+View(freetrade)
+
+head(freetrade)
+a.out <- amelia(freetrade, m = 5, ts = "year", cs = "country")
+??amelia
+```
+```{r}
+missmap(a.out)
+missmap(freetrade)
+```
+
+```{r}
+freetrade$tariff <- a.out$imputations[[5]]$tariff
+missmap(freetrade)
+```
+
+### 5.4 이상값 검색
+이상값 outlier 검색은 분석에서 전처리를 어떻게 할 지 결정할 때와 부정사용방지 시스템에서 규칙을 발견하는데 사용할 수 있다. (ex.카드값 해외에서 큰돈 이용 할때 카드정지)
+
+의도하지 않게 잘못 입력된 경우 (bad data), 의도하지 않게 입력됐으나 분석목적에 부합하지 않아 제거해야하는 경우 (bad data), 의도되지 않은 현상이지만 분석에 포함해야 하는 경우 (이상값), 의도된 이상값 사이의 차이를 인지한다. 
+
+```{r}
+# outlier package 사용
+#install.packages("outliers")
+library(outliers)
+set.seed(1234)
+y = rnorm(100)
+
+outlier(y, opposite = TRUE) #반대방향으로 가장 차이가 많이 나는 값 출력
+```
+```{r}
+dim(y) <- c(20,5) # 행 20, 열 5 행렬 생성
+
+outlier(y) # 각 열의 평균과 가장 차이가 많은 값을 각 열 별로 출력
+outlier(y, opposite = TRUE) # 각 열 별로 반대 방향으로 열 평균과 가장 차이가 많은 값 출력
+```
+```{r}
+boxplot(y)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

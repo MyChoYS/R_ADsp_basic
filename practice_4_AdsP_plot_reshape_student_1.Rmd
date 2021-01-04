@@ -1,0 +1,110 @@
+---
+title: "AdsP R 기초와 데이터마트 2"
+output: html_notebook
+---
+
+###  R 그래픽 기능
+ R은 다른 통계 분석 프로그램에 비해 그래픽 기능이 다양하고 자유자재로 그림을 그릴 수 있다는 장점이 있다. R에서 그림을 그릴 때 사용할 수 있는 시스템은 크게 두 가지가 있다.  plot 시스템과 ggplot2를 사용하는 방법이 그것이다. AdsP에서는 plot 시스템만을 다루고 있기 때문에 우선 plot 시스템을 다루고 ggplot2은 부수적으로 공부해보자.
+ 
+### 1. Plot 시스템
+
+#### 1) Scatterplots 산점도 
+ 
+산점도는 기본이 되는 그래프로서, x 변수와 y 변수의 값을 한눈에 살펴볼 수 있도록 평면에 점을 찍어 표현한다. 두 변수 간 관계를 파악하는데 있어 가장 기본. 
+plot() 함수를 이용한다. 
+```{r}
+# 키와 몸무게 데이터를 생성
+height = c(170, 168, 174, 175, 188, 165, 165, 190, 173, 168, 159, 170, 184, 155, 165)
+weight = c(68, 65, 74, 77, 92, 63, 67, 95, 72, 69, 60, 69, 73, 56, 55)
+
+plot(height,weight)
+```
+
+```{r}
+# Let's decorate the plot!
+# check what we can do using plot function
+?plot
+plot(height,weight, type = "l")
+plot(height,weight, type = "b")
+plot(height,weight, pch = 20)
+plot(height,weight, pch =20, col = "red")
+```
+
+```{r}
+plot(height,weight, pch = 20, col = "blue")
+```
+
+```{r}
+students <- data.frame(height, weight)
+plot(height,weight, pch = 20, col = "blue", main = "Students' height and weight")
+```
+```{r}
+students <- data.frame(height, weight)
+#View(students)
+plot(students$height,students$weight, 
+     pch = 20, col = "blue", 
+     main = "Students' height and weight",
+     xlab = "Students' weight",
+     ylab = "Students' height")
+```
+
+```{r}
+fit <- lm(weight~height)
+plot(students$height,students$weight, 
+     pch = 20, col = "blue", 
+     main = "Students' height and weight",
+     xlab = "Students' weight",
+     ylab = "Students' height")
+
+lines(students$height,fitted(fit), col="blue")
+
+```
+
+### 2) 산점도 행렬
+여러가지 변수들에 대해서 각각의 산점도를 한눈에 살펴볼 수 있도록 확장된 산점도 행렬이다. 산점도 행혈은 pairs 명령어를 이용해 바로 그릴 수 있다. 
+```{r}
+# Let's use iris data that is embedded in R 
+??iris
+iris <- iris
+View(iris)
+pairs(iris[1:4], main = "Anderson's Iris data -- 3 Species",
+      pch = 21,
+      bg = c("red","green3","blue"))
+```
+
+### 3) 히스토그램과 상자그림
+히스토그램은 한 변수의 분포를 파악하는데 주로 사용하는 반면, box plot은 여러 변수 간 분포를 비교하는데 유용하다. 
+```{r}
+library(gapminder)
+??gapminder
+View(gapminder)
+gapminder <- gapminder
+str(gapminder)
+```
+
+```{r}
+# subset year 1952 and 2007
+table(gapminder$year)
+year_1952 <- gapminder[gapminder$year == 1952,]
+year_2007 <- gapminder[gapminder$year == 2007,]
+```
+
+```{r}
+hist(year_1952$lifeExp)
+hist(year_2007$lifeExp)
+```
+
+```{r}
+year_2007$continent<- as.character(year_2007$continent)
+
+boxplot(lifeExp~continent, data = year_2007)
+
+```
+
+
+
+
+
+
+
+

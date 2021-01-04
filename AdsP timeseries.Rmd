@@ -1,0 +1,140 @@
+---
+title: "AdsP 시계열 예측"
+output: html_notebook
+---
+ 
+시계열 데이터 time series data는 관측치가 시간적 순서를 가지는 데이터. 일정 시점에 조사된 데이터는 횡단 자료 cross-sectional라고 함. 시계열 데이터의 대표적인 예는 소비자 물가지수, 주가지수 등. 
+
+시계열 데이터 목적: 미래 값 예측, 시계열 데이터의 특성 파악 (경향, 주기, 계절성, 불규칙성 등)
+
+### 1. 정상성 stationary
+시계열 분석을 위해서는 정상성을 만족해야 한다. 정상성이란 시계열의 수준과 분산에 체계적인 변화가 없고, 엄밀하게 주기적 변동이 없다는 것으로, 미래는 확률적으로 과거와 동일하다는 것을 뜻한다. 
+![](/Users/bogangjun/Desktop/Rmdfigures/timeseries.png)
+
+아래 세 조건을 만족해야 정상 시계열이다. 
+1. 평균값이 시간 t에 관계없이 일정하다.
+2. 분산값은 시간 t에 관계없이 일정하다.
+3. 공분산은 시간 t에 의존하지 않고 오직 시차에만 의존한다. 
+
+위의 세 가지 조건을 만족하지 못하면 비정상시계열. 대부분의 시계열 자료는 비정상시계열 자료이다.
+
+### 2. 비정상 시계열을 정상 시계열로 전환하는 방법
+1. 시계열의 평균이 일정하지 않은 경우에는 원시계에 차분을 하면 정상 시계열이 된다.
+2. 계절성을 갖는 비정상시계열은 정상시계열로 바꿀 때 계절차분을 이용한다. 
+3. 분산이 일정하지 않은 경우에 원계열에 자연로그 변환을 하면 정상시계열이 된다. 
+
+참고: 백색잡음과정이란 대표적 정상시계열로 시계열의 평균이 0이고 분산이 일정한 값이고 자기공분산이 0인 경우를 말한다. 
+
+### 3. 시계열 모형
+
+1. AR 자기회귀모형
+2. MA 이동평균모형
+3. ARIMA 자기회귀누적이동 모형
+
+
+#### 1) AR AutoRegressive 모형
+
+자기 자신의 과거값을 사용하기 때문에 auto regressive. 현 시점의 ㄱ시계열 자료에 몇 번째 전 자료까지 영향을 주는 지 알아내는데 초점, 현 시점에서 과거 1시점 자료만 현재에 영향을 준다면 1차 자기회귀모형 AR(1)이라고 부른다. 
+
+AR(1)은 백색 잡음의 현재 값과 1시점 전 과거 자기 자신의 값만의 가중합으로 이루어진 모형이다. 
+
+$y_t = \alpha_1 y_{t-1} + \alpha_2 y_{t-2} + ... + \alpha_p y_p + \epsilon_t$
+
+#### 2) MA Moving Average 모형
+
+이동평균모형은 최근 데이터의 평균(혹은 중앙치)을 예측치로 사용하는 방법. 각 과거치에는 동일한 가중치가 주어진다.
+
+$y_t = \epsilon_t - \beta_1 \epsilon_{t-1}-...-\beta_q \epsilon_{t-q}$
+
+
+#### 3) ARIMA 자기회귀누적이동 모형
+
+대부분의 많은 시계열 자료가 자기회귀 누적이동평균 모형을 따른다. ARIMA 모형은 기본적으로 비정상시계열 모형이기 때문에 차분이나 변환을 통해 AR, MA, ARMA 모형으로 정상화할 수 있다. 
+
+#### 4) 분해 시계열
+시계열에 영향을 주는 일반적인 요인을 시계열에서 분리해 분석하는 방법
+
+1. 추세요인: 자료가 어떤 특정한 형태를 취할 때 추세요인trend factor이라 한다.
+
+2. 계절요인: 계절에 따라 고정된 주기에 따라 자료가 변화할 경우 계절요인 Seasonal factor이라 한다.
+
+3. 순환요인: 알려지지 않은 주기를 가지고 자료가 변화할 때 순환요인 Cyclical factor이라 한다. 
+
+4. 불규칙요인: 위 세가지 요인으로 설명할 수 없는 회귀분석에서 오차에 해당하는 요인을 불규칙 요인 Irregular factor이라고 한다. 
+
+예 1: 아스완 댐, 나일강의 연간 유입량
+```{r}
+Nile
+```
+```{r}
+plot(Nile)
+```
+평균이 일정하지 못해 비정상성. 따라서 차분을 한다.
+
+```{r}
+Nile.diff1 <- diff(Nile, differences = 1)
+plot(Nile.diff1)
+```
+1차 차분으로도 아직 평균이 일정하지 않음
+```{r}
+Nile.diff2 <- diff(Nile, differences = 2)
+plot(Nile.diff2)
+```
+
+예 2: 폐질환 사망자
+```{r}
+ldeaths
+plot(ldeaths)
+```
+계절성이 보이는 데이터
+```{r}
+#ㅇdecompose() 함수를 사용하여 시계열 자료를 4가지 요인으로 분해할 수 있다.
+ldeaths.decompose <- decompose(ldeaths)
+ldeaths.decompose$seasonal
+```
+```{r}
+plot(ldeaths.decompose)
+```
+
+```{r}
+ldeaths.decompose.adj <- ldeaths - ldeaths.decompose$seasonal
+plot(ldeaths.decompose.adj)
+#원시계열 자료에서 계절요인을 제거한 후 그림을 그린다.
+```
+
+### 4. ARIMA 모델 적합 및 결정
+
+
+부분자기상관함수 pacf()함수 이용 (이것은 AR 모형과 관련있는 p 결정)
+```{r}
+pacf(Nile.diff2, lag.max = 20)
+pacf(Nile.diff2, lag.max = 20, plot = FALSE)
+```
+
+자기상관함수와 부분자기상관 함수를 통해 ARIMA 모형을 적합한 후에 최종 모형을 결정할 수 있다. 자기상관함수를 알아보기 위해 acf 함수를 사용
+이것은 MA 모델과 관련있는 q 결정
+```{r}
+acf(Nile.diff2, lag.max = 20)
+acf(Nile.diff2, lag.max = 20, plot = FALSE)
+```
+
+```{r}
+#install.packages("forecast")
+library(forecast)
+auto.arima(Nile)
+```
+
+ARIMA 모형을 이용한 예측
+```{r}
+Nile.arima <-arima(Nile, order = c(1,1,1))
+Nile.arima
+```
+```{r}
+Nile.forecast <-forecast(Nile.arima, h = 50) # h = 50은 50개 연도 나일강 유입량 예측
+Nile.forecast
+```
+```{r}
+plot(Nile.forecast)
+```
+
+

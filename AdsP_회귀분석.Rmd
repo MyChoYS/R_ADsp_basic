@@ -1,0 +1,258 @@
+---
+title: "AdsP 회귀분석"
+output: html_notebook
+---
+
+### 1) 단순회귀와 중회귀분석의 개념
+회귀분석이란 변수와 변수 사이의 관계를 알아보기 위한 통계적 분석 방법으로, 독립변수의 값에 의하여 종속변수의 값을 예측하기 위함이다.
+
+독립변수(independent variable, 설명변수 explanatory variable): 종속변수에 영향을 미치는 변수
+
+종속변수(dependent variable): 분석의 대상이 되는 변수
+
+### 2) 선형회귀모형
+X와 Y가 1차식으로 나타날 때 성형회귀모형이 되고 다음과 같은 전제가 필요하다.
+--> 독립변수 X의 각 값에 대한 Y의 확률분포가 존재한다.
+--> Y의 확률분포의 평균은 X값이 변함에 따라 일정한 추세를 따라 움직인다. 
+
+### 3) 단순회귀모형
+$Y_i = \beta_o + \beta_1 \cdot X_i + \epsilon_i$
+
+where $i = 1, 2, 3, ..., n$
+
+독립변수 1개: 단순회귀분석
+독립변수 2개 이상: 다중회귀분석
+독립변수의 척도가 등간, 비율: 일반회귀
+독립변수의 척도가 명목, 서열: 더미회귀
+독립변수와 종속변수의 관계에 따라 선형회귀와 비선형회귀
+
+### 4) 회귀모형에 대한 가정 (중요!)
+선형성: 독립변수의 변화에 따라 종속변수도 변화하는 선형linear 모형이다.
+
+독립성: 잔차와 독립변수의 값이 관련되어 있지 않다.
+
+등분산성: 오차항들의 분포는 동일한 분산을 갖는다.
+
+비상관성: 잔차끼리 상관이 없어야 한다.
+
+정상성: 잔차항이 정규분포를 이뤄야한다.
+
+통계분석 결과 해석 (중요!)
+모형이 통계적으로 유의미한가? F분포값과 유의확률p-value로 확인한다.
+회귀계수들이 유의미한가? 회귀계수의 t값과 유의확률p-value로 확인한다.
+모형이 얼마나 설명력을 갖는가? 결정계수를 확인한다.
+모형이 데이터를 잘 적합하고 있는가? 잔차통계량을 확인하고 회귀진단을 한다.
+
+예제1:
+```{r}
+set.seed(2)
+x = runif(10,0,11)
+y = 2 + 3*x +rnorm(10,0,0.2)
+dfrm <- data.frame(x,y)
+
+lm(y~x, data = dfrm)
+
+```
+
+
+예제2:
+```{r}
+set.seed(2)
+u <- runif(10,0,11)
+v <- runif(10,11,20)
+w <- runif(10,1,30)
+
+y = 3 + 0.1 * u + 2 * v -3*w +rnorm(10,0,0.1)
+
+dfrm1 <- data.frame(y,u,v,w)
+
+m <- lm(y~u + v + w , data = dfrm1)
+m
+```
+
+
+#회귀모델의 적합성 검증 (모델평가)
+```{r}
+summary(m) #summary() 함수를 통해 결정계수, F통계량, 잔차의 표준오차 등 주요 통계량의 정보를 출력할 수 있다.
+
+```
+
+예제3: 식이요법 방법을 적용한 닭에 대한 데이터
+```{r}
+#install.packages("MASS")
+library(MASS)
+```
+
+```{r}
+chick <- ChickWeight[ChickWeight$Diet == 1, ]
+chick
+```
+```{r}
+lm(weight ~ Time, chick)
+```
+
+```{r}
+m1 <- lm(weight ~ Time, chick)
+summary(m1)
+```
+($R^2$) 값을 결정계수라고 교과서에서는 칭하고 있음
+Time에 대한 회귀계수가 7.9879이므로 Time이 1 증가할 때 weight가 7.9879 만큼 증가한다고 해석할 수 있다.
+
+예제 4: 모델진단그래프
+```{r}
+data(cars)
+m <- lm(dist~speed, cars)
+summary(m)
+par(mfrow = c(2,2)) #화면을 2*2로 보기
+plot(m)
+par(mfrow=c(1,1)) # 원래 한개의 화면으로 보기
+```
+Residuals vs Fitted: y 축은 잔차를 보여줌. 선형회귀에서 오차는 평균이 0이고 분산이 일정한 정규분포를 가정하므로 y값은 기울기가 0인 직선이 이상적이다.
+
+Notmal Q-Q 잔ㄴ차가 정규분포를 잘 따르고 있는지를 확인하는 그래프. 잔차들이 그래프 선상에 있어야 이상적이다.
+
+Scale-location은 y축이 표준화 잔차를 나타낸다. 이 역시 기울기 0인 직선이 이상적이다. 만약 0에서 멀리 떨어진 값이 있다면 이상치일 가능성이 높다. 
+
+Cook's Distance: 일반적으로 1을 넘어가면 관측치를 영향점inflience point으로 판별한다.
+
+잔차그림은 3가지 주요 형태를 나타낸다. 
+
+1. 무작위형태로 선형모델이 적합하다.
+2. U형태 
+3. 뒤집힌 U형태
+
+2,3은 비선형모형
+
+해결방안: 다른 새로운 변수를 추가, 로그 또는 지수 변수 변환, 선형성을 만족하지 못하는 변수를 제거하는 것, 회귀분석의 단계별 ㅈ변수선택 방법 등을 고려할 수 있다.
+
+### 5) 최적 회귀방정식의 선택: 설명변수의 선택
+변수를 선택해 회귀모형을 설정해 주는 데는 다음의 두 가지 원칙을 따른다
+
+1. y에 영향을 미칠 수 있는 모든 설명변수 x들은 y값을 예측하는데 참여시킨다.
+
+2. 데이터에 설명변수 x들의 수가 먾아지면 관리하는데 많은 노력이 요구되므로 가능한 범위 내에서 적은 수의 설명 변수를 포함시켜야 한다. 
+
+### 6) 설명변수를 선택하는 방법 (중요!)
+설명변수를 선택하는 방법에는 형식에 따라 다음과 같은 방법으로 나뉜다.
+
+#### (1) 모든 가능한 조합의 회귀분석
+모든 가능한 독립변수들의 조합에 대한 회귀모형을 고려해 AIC나 BIC 기준으로 가장 적합한 회귀모령을 선택한다.
+참고: AIC, BIC는 어떤 모델을 선택하면 좋을 지 알려주는 지표. 값이 작을수록 좋다.
+
+#### (2) 단계적 변수선택 (Stepwise Variable Selection) (중요!)
+$\textbf{단계별선택, Stepwise selection}$: 모든 변수가 포함된 모델에서 출발하여 기준 통계치에 가장 도움이 되지 않는 변수를 삭제하거나, 모델에서 빠져있는 변수 중에서 기준 통계치를 가장 개선시키는 변수를 추가한다.
+
+$\textbf{후진 제거법, Backward elimination}$: 모든 변수가 포함된 모델에서 기준 통계치에 가장 도움이 되지 않는 변수를 하나씩 제거하는 방법이다. 
+
+$\textbf{전진 선택법, Forward selection}$: 절편만 있는 모델에서 통계치를 가장 많이 개선ㅌ시키는 변수를 차례로 추가하는 방법이다.
+
+예제: 후진선택법
+```{r}
+x1 <- c(7,1,11,11,7,11,3,1,2,21,1,11,10)
+x2 <- c(26,29,56,31,52,55,71,31,54,47,40,66,68)
+x3 <- c(6,15,8,8,6,9,17,22,18,4,23,9,8)
+x4 <- c(60,52,20,47,33,22,6,44,22,26,34,12,12)
+y <- c(78.5, 74.3, 104.3, 87.6, 95.9, 109.2, 102.7, 72.5, 93.1, 115.9, 83.8, 113.3, 109.4)
+
+df <- data.frame(x1, x2, x3, x4, y)
+head(df)
+```
+```{r}
+a <- lm(y ~x1 +x2 + x3 + x4 , data=df)
+a
+summary(a)
+```
+
+```{r}
+a <- lm(y ~x1 +x2  + x4 , data=df)
+a
+summary(a)
+```
+```{r}
+a <- lm(y ~x1 +x2  , data=df)
+a
+summary(a)
+```
+
+예제6: 전진선택법
+```{r}
+step(lm(y~1,df), scope = list(lower =~1, upper=~x1 +x2 + x3 + x4, direction= "forward"))
+```
+
+$\textbf{다중공선성 Multicolinearity}$
+
+1. 다중회귀를 할 때 고려해애 할 것 중의 하나. 이것은 통계의 가정과는 관계없지만 다중회귀 결과를 해설할 때 중요하다.
+
+2. 다중공선성ㄹ이란 모형의 일부 예측변수가 다른 예측변수와 상관되어 있을 때 발생하는 조건이다. 중대한 다중공선성은 회귀분석의 분산을 증가시켜 불안정하고 해석하기 어렵게 만들기 때문에 문제가 된다.
+
+3. R에서는 vif 함수를 사용해 VIF값을 간단히 구할 수 있드며, 보통 VIF 값이 10이 넘으면 다중공선성이 존재한다고 본다. 
+
+4. 해결방안: 높은 상관관계가 있는 예측변수를 모형에서 제거한다. 이러한 예측변수는 반복적인 정보를 제공하기 때문에 모형에서 제거하면 대부분 $R^2$가 감소한다. 이 변수들을 제거하려면 ㄱ단계적 회귀분석 등을 이용할 수 있다.
+
+### 정규화 선형회귀 Regularized Linear Regression
+
+#### 1) 정규화 Regularization 개념
+1. 좋은 모델이란 training data를 잘 설명하고 (즉 MSE 최소), testing data에 대한 예측 성능이 우수한 모델이라 할 수 있다.
+
+2. $Y = f(X) + \epsilon$이라고 하면 MSE 기대값은 $E[(Y-\hat{f}(X))^2 = E[(\hat{f}(X) - E[\hat{f}(X)])^2 + (E[\hat{f}(X)] - f(X))^2 + \sigma^2$. Bias의 제곱 + variance. 결국 bias와 variance가 감소하는 것이 관건인데, bias와 variance는 trade-off 관계.
+
+3. 회귀분석에서 최소제곱법이란 평균제곱오차(MSE)를 최소로 하는 회귀계수 베타 계산을 의미한다. 결국 최소제곱법은 unbias에 초점을 둔 모델이라 할 수 있다. ㅈㄱ, 추정된 회귀식이 새로운 자료에 대해서도 좋은 성능을 유지하기 위해서는 일반화에 유리한 모형이 필요하다. 
+![](/Users/bogangjun/Desktop/biasvariance.jpeg)
+
+![](/Users/bogangjun/Desktop/biasvariance2.jpeg)
+
+![](/Users/bogangjun/Desktop/tradeoff.jpeg)
+
+4. 즉, 차수가 증가하면서 training data에서는 low bias이지만 test dataㅇ는 high variance인 상태로 예측 성능이 우수하지 못한 모델이 된다. 그러므로 최적인 모델인 just right을 만들어야 한다.
+
+5. overfitting model에서 just right model로 가려면 (예를들면)
+$\beta_0 + \beta_1 X + \beta_2 X^2 + \beta_3 X^3 + \beta_4 X^4$ (overfitting) $-> \beta_0 + \beta_1 X + \beta_2 X^2$ (just right model)
+
+이것은 $\beta_3, \beta_4$의 계수가 0일때 가능. 베타 계수에 제약을 부여, 즉 패널티를 줘서 모델의 변화를 주는 것이 정규화의 기본 개념임
+
+$L(\beta)=min \sum_{i = 1}(y-\hat{y})^2$, 회귀식 최소제곱법 + $\lambda \sum_{i=1}^{p}\beta^2$ 를 추가함으로써 unbias에 variance예측모형의 성능을 높임, 결국 bias와  variance을 조절하는 역할을 하게된다. 여기서 람다($\lambda$)는 정규화 모형을 조정하는 하이퍼 파라미터이다. 
+
+![](/Users/bogangjun/Desktop/modelfit.png)
+
+
+```{r}
+#install.packages("ridge")
+library(ridge)
+data("longley")
+longley <- na.omit(longley)
+names(longley)[1] <- 'y'
+mod <- linearRidge(y~.-1, data = longley, lambda = "automatic")
+options(scipen = 999)
+```
+
+```{r}
+#install.packages("genridge")
+library(genridge)
+lambda <- c(0,0.005, 0.01, 0.02, 0.04, 0.08)
+r <- ridge(y~., longley, lambda = lambda)
+traceplot(r)
+```
+
+
+람다값이 클수록 제약이 많다. 적은 변수, 해석이 쉬워진다. 결국 underfitting 된다. 극단적으로 커지면 베타값은 0, 이것은 선형회귀와 같아진다. 
+
+람다값이 작아질수록 제약이 적다. 많은 변수, 해석이 어려워진다. 결국 overfitting이 된다. 
+
+#### 2) 패널티 크기를 조절하는 람다와 패널티 함수 $P(\beta)$
+
+1. 릿지(능형) 회귀: $P(\beta) = \sum_{j = 1}^{p}\beta_i ^2$ 베타 제곱 상수에 패널티 부여를 $L_2-norm$이라 한다.
+
+2. 라쏘(lasso) 회귀: $P(\beta) = \sum_{j = 1}^{p}|\beta_i|$ 베타 절대값 상수에 패널티 부여를 $L_1-norm$이라 한다.
+
+3. 엘라스틱넷: $L_1-norm$, $L_2-norm$ 패널티 부여 (릿찌 + 라쏘 혼합)
+
+![](/Users/bogangjun/Desktop/릿찌.png)
+
+![](/Users/bogangjun/Desktop/라쏘.png)
+
+릿지 회귀는 베타제곱(타원형), 라쏘회귀는 절대값(마른모형)으로 선형회귀 베타 계수의 최소제곱법(low bias)에 람다(low variance)가 추가되어 모수를 추정하게 된다. 
+
+![](/Users/bogangjun/Desktop/릿찌라쏘비교.png)
+
+
+

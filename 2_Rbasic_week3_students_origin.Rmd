@@ -1,0 +1,722 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# R basic #
+
+By the end of this class, you will be able to
+  do arithmetic using R
+  use variable, matrices, vector, dataframe in R
+  explain data types in R
+
+The credit of this lecture note is on Datacamp R courses, Coursera R programming courses, Kosuke Imai (2018), and Bogang Jun.
+
+## 1) Arithmetic
+R uses =, -, * like a caculator
+```{r}
+  10-1
+  3*5
+  1+2
+```
+
+You can also use / to divide
+```{r}
+  6/3
+  10/5
+```
+
+Like on a calculator, parentheses can be used to prioritize calculation
+```{r}
+ (2+1)*10
+```
+
+In R, ^ and ** are exponentiation operators. 
+They raise the number on the left to the power of the number on the right: e.g. 3^2 == 9
+```{r}
+ 2^3
+```
+
+To find the square root of certain number, we need to use sqrt() function, while abs() function is used for taking the absolute value.
+```{r}
+sqrt(9)
+
+abs(-9)
+```
+
+The modulo operator %% returns the remainder of a division.
+```{r}
+ 7%%2
+```
+  
+R ignores lines starting with #, so they can be used to add comments to your code.
+ 
+## 2) R variables
+Variables allow you to store value for later use. 
+For example, to store the value 10 in the variable x, you would do: x <-10
+```{r}
+  age <- 23
+  age
+```
+
+To output the value of a variable to the screen, you type the variable name. 
+```{r}
+  pi <- 3.14
+  pi
+```
+
+Storing a value in a variable is called assignment. 
+You must assign a value to a variable before you can use it.
+  
+Variables can be used in operations anywhere you would use their values
+```{r}
+  income <- 100
+  costs <- 20
+  profit <- income - costs
+  profit
+```
+
+If you assign a new value to an existing variable, it will replace the previous value
+```{r}
+  age <- 17
+  age <- 18
+  age
+```
+
+## 3) Data types  
+
+Every value has a data type, which classifies the value. 
+For example, name are character data but ages are numbers
+
+R's basic data types are character, numeric, integer, complex, and logical. R's basic data structures include the vector, list, matrix, data frame, and factors. Objects may have attributes, such as name, dimension, and class.
+  
+Letters and words like "r", "data", or "analysis" (note the quotes) are called strings, and have the character data type.
+  
+You can use the class() function to get the data type of a value or a variable
+```{r}
+ class("HelloWorld")
+```
+
+You can use the str() function as well. 
+```{r}
+str("HelloWorld")
+```
+
+Integers (whole numbers like 3) and numbers with decimal places like 3.14 have the numeric data type
+```{r}
+ n<- 3.14
+ class(n)
+```
+
+You often need to know if things are true or false: e.g. is it Friday?
+These can be represented by "Boolean"" values.
+  
+In R, TRUE and FALSE represent truthness and falseness, respectively. 
+They have the logical data type, and have to be uppercase.
+  
+Why does 2 + '2' cause an error?
+
+## 4) Vectors
+What's the typical data structure in data analysis?
+  Columns represent vectors (vaiables) and rows represent each observation. 
+ 
+Using a vector, we can store multiple values. You create them using the fuction c().
+```{r}
+c(1,2,3)
+```
+
+R prints the elements in a vector separated by spaces. 
+The [1] is not part of the vector, it is only part of how R disply it.
+
+c() combines the elements separated by commas into a vector.
+
+You can assign a vector to a variable and print it. R will display the values separated by spaces. 
+```{r}
+  v <- c(1,2,3)
+  v
+```
+
+Vectors may contain character or Boolean values instead of numbers. 
+```{r}
+  v <- c("x", "y", "z")
+  v
+  
+  v<- c(TRUE, FALSE, TRUE)
+  v
+```
+
+Within a single vector, all elements have the same data type.
+  
+The elements of a vector can have names: these get printed, too. 
+You add names to a vector using another vector!
+  
+Note that when a vector has names, R doesn't print them wih the preceding [1]
+```{r}
+  value <- c(1,2,3)
+  title <- c("x", "y", "z")
+  names(value) <- title
+  value
+```
+
+The names of a vector can also be printed on their own.
+```{r}
+ names(value)
+```
+
+Performing calculations with vectors
+You can fo arithmetic when creating vectors, and the result will be stored in the vector
+```{r}
+  v <- c(1+1, 2+2, 3+3)
+  v
+```
+
+If you add two vectors with +, R will add the elements of the vectors element-wise.
+```{r}
+  a <- c(1,2,3)
+  b <- c(4,5,6)
+  a+b
+```
+  
+You can store the result of adding two vectors in a new vector
+```{r}
+  a <- c(1,2,3)
+  b <- c(4,5,6)
+  c <- a+b
+  c
+```
+  
+sum() is a  function that will take the sum of everything within its parenthese.
+```{r}
+  v<- c(5,6,7)
+  sum(v)
+```
+
+length() is a function that will take the number of elements.
+```{r}
+length(v)
+
+```
+
+
+### Subsetting vectors 
+
+You can pinpoint an element in a vector by its index.
+The first element is at index 1, the second is at 2, and so on. 
+
+You can use the index surrounded by square brackets to extract an element from a vector
+```{r}
+
+```
+
+You can also get multiple elements from a vector by putting a vector of indices within the brackets. 
+It's vectors all the way down.
+```{r}
+
+```
+
+The element you select correspond directrly to the indices you use, in whatever order you specify.
+```{r}
+
+```
+
+You can save the results of subsetting a vector as a new vector
+```{r}
+
+
+```
+
+R has a shortcut for creating a vector of sequential integers. 
+Typing 1:4 create a vector of the value 1 2 3 4 
+```{r}
+
+```
+
+This is creating the same result with c(1,2,3,4,5) and c(1:5)
+
+Subseting a vector using this shortcut
+```{r}
+
+```
+
+You can subset a vector using its names.
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+Previously you took the sum of a vector with sum(). 
+mean() calculates the sum of the elements divided by how many they are.
+```{r}
+
+```
+
+  
+## 5) Comparing values in R
+R has comparison operators. For example, you can check if one value is equal (==)
+or not equal (!=) to another.
+  
+When you compare two numbers or strings, you get a Boolean.
+```{r}
+
+```
+
+  
+<= checks if a value is less than or equal to another, >= checks if it is greater than or equal another.
+```{r}
+
+```
+
+You can use these comparison operators to compare each element in a vector to some other value. 
+```{r}
+
+```
+
+Remember how you subset vectors using vectors of indices or names. 
+You can also subset using Booleans.
+```{r}
+
+```
+
+```{r}
+
+```
+ c.f.error message appears when mean(v[1,2,3])
+  
+Using what you've learn, you can add two vectors and find when the resulting elements meet some threshold.
+```{r}
+
+```
+
+## 6) matrices
+Creating matrices
+You leant how to use c() for creating vectors. c() can also combine multiple vectors into one. 
+```{r}
+
+```
+
+A matrix stores data in rows and columns, like table. 
+You can create a matrix using the matrix() function
+```{r}
+
+```
+
+You create a matrix with the matrix() function. 
+nrow is an argument that tells matrix() how many rows there should be.
+```{r}
+
+```
+
+By defualt, matrix() fills in values from top to bottom. So it will fill in the first column,then the second, and so on.
+```{r}
+
+```
+
+Again, by defualt, matrix() fills in values top to bottom, but you can choose to fill them in left to right using the byrow argument.
+```{r}
+
+```
+  
+The "byrow"" argument to matrix() can be FALSE (the default) or TRUE.
+```{r}
+
+```
+  
+To hep you remember what's stord in your data, you can give the rows and columns names.
+```{r}
+
+```
+
+### Combining matrices
+Remember that matrices have rows and columns
+You can do some useful calculations on matrices, like finding the sum of each row with the rowSums() function
+```{r}
+
+
+```
+
+rowSum() calculates the sum of each row, and colSum() calculates the sum of each column.
+```{r}
+
+```
+
+Remember that calling c() on multiple vectors creates a new vector.
+```{r}
+
+```
+
+Just like you can combine multiple vectors into one, you can also combine matrices. rbind() stacks the rows from one matrix onto another.
+```{r}
+
+```
+
+cbind() pastes the columns of two matrices together.
+```{r}
+
+```
+
+rbind() and cbind() can also combine multiple vectors into a matrix. 
+```{r}
+
+```
+Recall that calling c() on two vectors creates a single vector.
+
+```{r}
+
+```
+
+### Subsetting matrices
+You can use [] to subset elements from a matrix. mat[1,2] selects the first row and second column.
+```{r}
+
+```
+
+```{r}
+
+```
+
+You can also use slicing to select elements from a matrix. mat[1:3, 2:4] selects data from rows 1,2,3, and cols 2,3,4.
+```{r}
+
+```
+
+To select all elements of a matrix row or col, leave out the number before or after the comma. mat[,3] selects all elements of the third column. 
+```{r}
+
+```
+
+```{r}
+
+```
+
+Performing calculations and srithmetic with metrices
+Like with vectors, yu can use the arithmetric operators element wise on matrices: to add 3 to every element: mat +3.
+```{r}
+
+```
+
+You can also use operators on entire matrices. m1 * m2 will multiply element in m1 by the corresponding element in m2.
+```{r}
+
+```
+
+```{r}
+
+```
+
+Just like with vectors, you can use funtions on matrices. mean() will get the average of all values in a matrix.
+```{r}
+
+```
+
+```{r}
+
+```
+
+## 7) Factors
+
+As you have learned, vector can contain character strings.
+In R, factor vectors store data that falls into a finite number of categories. They are printed without quotation marks.
+```{r}
+
+```
+
+The levels of a factor are the possible categories, and are printed along with the data.
+```{r}
+
+```
+
+When R prints factors it displays each vector element first, followed by the levels in the factor in alphabetical order. 
+```{r}
+
+```
+
+Factors store categorical data: data that has a finite number of distict categories, such as gender, country, race, or blood type.
+
+R automatically sets the levels of the factor in alphabetical order. You can view them with levels().
+```{r}
+
+```
+
+When you created factors with factor(), R automatically picked the levels. You can rename them if you want.
+```{r}
+
+```
+
+```{r}
+
+```
+
+When you change the levels of a factor, it lso changes how the data is printed to use the new levels.
+```{r}
+
+```
+
+Summarizing categorical variables
+Remember that R prints character vectors and factor vectors differently. 
+```{r}
+
+```
+
+Storing data in a factor can let you do useful things, like see the counts of each category with the summary() function.
+```{r}
+
+```
+
+You may be wondering what happens when you call summary() on a character vector.
+```{r}
+
+```
+
+You can subset a factor with square brackets like you did with other vectors. When you subset a factor, R still displays all of the levels. 
+```{r}
+
+```
+
+You can compare strings alphabetically: "a is less than "b.
+```{r}
+
+```
+
+The factors you've seen have no ranking of the levels, so if you compare them you'll get NA and a warning.
+```{r}
+
+```
+
+### Ordered factors
+R can't compare factors without an implied order. For example, R doesn't know if "blue" is greater tha "red".
+
+Nominal variables represent categories of data that are unordered, whereas ordinary variables have an inherent order or ranking. (Letter grades: A, B, C... or Ages: young, teenage, old..)
+
+R represents ordinal variables as ordered factors, using the ordered argument to factor(). Note the output: R orders alphabetically. 
+```{r}
+
+```
+
+To explicily tell R the levels of a factor, you can add the levels argument to factor(). Note the output!
+```{r}
+
+```
+
+If you specify both ordered = TRUE and levels, R uses the order of levels.
+```{r}
+
+```
+
+So, to control the order of your ordered factors, you need to use the ordered and levels arguments.
+```{r}
+
+```
+
+```{r}
+
+```
+
+## 8) Data Frames
+
+We have already learned how to created matrices. Data Frames are another way to put data in tables. 
+data.frame(a = 1:3) makes a data frame with a column named a.
+```{r}
+d <- data.frame(a = 1:3, b= 4:6)
+d # do it on console
+```
+
+Each column in a data frame is a vector.
+```{r}
+
+```
+
+Unlike matrices, data frames can have different types of data. 
+```{r}
+
+```
+but within a column, all values must be the same type. 
+
+When you have a large data, head() will let you view just the first few rows. (c.f. tail())
+```{r}
+
+```
+
+```{r}
+
+```
+
+str() is another useful function that will tell you about the structure of your dataset.
+```{r}
+
+```
+
+Subsetting data frames with the same way for a matrix.
+```{r}
+
+```
+
+You can use : to select a range of rows or columns. 
+```{r}
+
+```
+
+If you leave out the row numbers, R will return all the rows. (for the same with columns.)
+```{r}
+
+```
+
+You can subset data using the name of columns.
+```{r}
+
+```
+
+There is a shortcut to extract a column from a data frame. d$col gets the column col from the data frame d. 
+```{r}
+
+```
+
+Another way to subset rows is to use a vector of Booleans. R will keep the rows corresponding to TRUE and drop those corresponding to FALSE.
+```{r}
+
+```
+
+```{r}
+
+```
+
+The function subset() will also return a subset of a data frame. You can use a vector of Booleans to tell it which rows to keep. 
+```{r}
+
+```
+
+Remember how you can compare a vector to a single value and get a vector of Booleans.
+```{r}
+
+```
+
+You can use subset() with comparison operators to get the rows that meet a condition.
+```{r}
+
+```
+
+```{r}
+
+```
+
+The order() function gives the indices of a vector that would rearrange it in sorted order. order(c(5,10, 1)) returns the vector [1] 3 1 2.
+```{r}
+
+```
+Recall that order() returns the indices of a vector that would rearrange that vector into ascending order.
+
+You can also use the indices provided by order() to reorder the vector.
+```{r}
+
+```
+
+Remember that df$col gives you a vector containing the column col from the data frame df.
+```{r}
+
+```
+
+You can save the results of ordering a vector as a new vector to make it easier to work with.
+```{r}
+
+```
+
+You can use order() to sort the rows of a data frame based on the values in a column. The row numbers stay attached to their original rows.
+```{r}
+
+```
+
+```{r}
+
+```
+
+## 9) List
+List can hold diffierent kinds of objects like vectors, matrices, and data frame. The output below is a list, created with the function list().
+```{r}
+
+```
+
+The elements in he list are given numbers like [[1]], [[2]], etc.
+```{r}
+
+```
+
+When you create a list, you can name the elements, and the names will be printed, preceded by $.
+```{r}
+
+```
+
+Recall that you can set the names of a vector using names(). The same works for lists. 
+```{r}
+
+```
+
+c() function can new elements to an existing list. 
+```{r}
+
+```
+
+Vectors, matrices, data frames, ad lists are all data structures: way to store in R. 
+Among these, lists are the super data structure: they can contain all the other kinds of data structures. 
+
+Remember that lists can contain lots of different things, and each element is given a number ([[1]]) or name. 
+```{r}
+
+```
+
+Lists can contain many different elements. To extract the first element from list a, write a[[1]].
+```{r}
+
+```
+
+Remember to use double square brackets ([[]]) to extract an element from the list.
+```{r}
+
+```
+
+If a list's elements are named, you can put the quoted name of the element you wnat within the double square brackets. 
+```{r}
+
+```
+
+```{r}
+
+```
+
+You can also use the shortcut you learned with data frames to extract a single element from a list: listname$element.
+```{r}
+
+```
+
+```{r}
+
+```
+
+You can even combine the subsetting techniques you've learned. To get the second value from the first element of list l, write l[[1]][2]. 
+```{r}
+
+```
+
+```{r}
+
+```
+
+Do you remember the function str()? You can use it on lists to learn how many elements they contain, what types those elements are, etc.
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+

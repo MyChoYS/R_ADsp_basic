@@ -1,0 +1,438 @@
+---
+title: "AdsP Decision tree et al."
+output: html_notebook
+---
+
+### 의사결정나무
+의사결정 나무 decision tree는 대표적인 분류 분석 방법 중 하나. 직관적이고 이해하기 쉽다. 
+
+#### 1) 의사결정 나무 구성요소
+1. 뿌리마디 root node:시작되는 마디로 전체를 포함
+
+2. 자식마디 child node: 하나의 마디로부터 분리되어 나간 2개 이상의 마디들
+
+3. 부모마디 parent node: 주어진 마디의 상위 마디
+
+4. 최종마디 terminal node: 자식마디가 없는 마디
+
+5. 중간마디 internal node: 부모 마디와 자식마디가 모두 있는 마디
+
+6. 가지 branch: 뿌리마디로부터 최종마디까지 연결된 마디들
+
+7. 깊이 depth: 뿌리마디로부터 최종마디까이즤 중간 마디들의 수
+
+#### 2) 의사결정나무 분석 패키지
+
+tree package는 binary recursive partitioning을, rpart 패키지는 CART, classification and regression trees 방법론을 사용한다. 이 패키지들은 엔트로피 지니 지수를 기준으로 가지치기를 할 변수를 결정하기 때문에 상대적으로 연산속도는 빠르지만 과적합화의 위험성이 존재한다. 그래서 두 패키지를 사용할 경우에는 pruning 과정을 거쳐서 의사결정 나무를 최적화하는 과정이 필요하다.
+
+party package는 unbiased recursive partitioning based on permutation tests 방법론을 사용한다. p-test를 거친 Significance를 기준으로 가지치기를 할 변수를 걸정하기 때문에 biased 될 위험이 없어 별도로 pruning할 필요가 없다는 장점이 있다. 대신 입력 변수의 레벨이 31개까지로 제한되어 있다는 단점이 있다. 
+
+
+#### 3) 데이터 분할과 과대적합
+모델을 만들 때는 보통 데이터를 training set와 test set로 나누어 사용한다. 학습에 사용한 training 데이터와 test 데이터가 비슷하다면 앞에서 만든 모델의 정확도는 높게 나올 것이다. 하지만 복잡한 ㅂ모델을 만든다면 training set 데이터에만 정확한 모델이 나올 수 있다. 
+
+training set가 정확한 결과를 보여주기 위해 복잡하게 모델을 만드는 것을 과대적합over fitting이라고 하고, 반대로 모델이 너무 간단하여 정확도가 낮은 모델을 과소적합under fitting되었다고 한다. 
+
+과대적합의 경우 training data에 대해서는 높은 정확도를 보여주지만, 새로운 데이터가 입력되면 잘못된 결과를 예측할 수 있다. 반대로 과소적합의 경우 모델은 간단하지만 training data 조차도 정확한 결과가 나오지 않을 수 있다. 
+
+과대적합이나 과소적합의 문제를 최소화하고 모델의 정확도를 높이는 가장 좋은 방법은 더 많고 다양한 데이터를 확보하고, 확보한 데이터로부터 더 다양한 특징feature들을 찾아서 학습에 사용하는 것이다. 
+
+#### 4) 의사결정나무의 구분
+
+##### 1. 분류나무 classification tree
+목표변수가 이산형인 분류나무의 경우 상위노드에서 가지분할을 수행할 때 분류(기준)변수와 분류(기준)변수와 분류 기준값의 선택 방법으로 카이제곱통계량의 p값, 지니계수, 엔트로피 지수 등이 사용된다. 
+
+카이제곱통계량의 p값은 그 값이 작을수록, 지니 지수와 엔트로피 지수는 그 값이 클수록 자식노드 내의 이질성이 큼을 의미하며, 따라서 이 값들이 가장 작아지는 방향으로 가지분할을 수행하게 된다. 
+
+1. 지니 지수 
+자료세트 T가 k개 범주로 분할되고 범주 비율이 $p_1, ...p_k$러고 한다면 다음과 같이 표기된다.
+
+$Gini(T) = 1-\sum^k_{i=1}p_i^2$
+
+지니계수는 불순도를 측정하는 방법이다. 지니계수는 작을수록 분류가 잘됨을 의미한다.
+
+2. 엔트로피 지수 Entrophy measure
+엔트로피 지수가 가장 작은 예측변수와 이때의 최적분리에 의해 자식마디를 형성한다. 자료세트 T가 k개의 범주로 분할되고 범주비율이 $p_1,...,p_k$라고 한다면 다음과 같이 표기된다.
+
+$Entropy(T)=-\sum^k_{i=1}p_i \cdot log_2p_i$
+
+##### 2. 회귀나무 Regression tree
+
+목표변수가 연속형인 회귀나무의 경우에는 분류(기준)변수와 분류 기준값의 선택 방법으로는 F통계량의 p값, 분산의 감소량 등이 사용된다. F통계량은 일원배치법에서의 검정통계량으로 그 값이 클수록 오차의 변동에 비해 처리의 변동이 크다는 것을 의미하며, 자식노드 간이 이질적임을 의미하므로 이 값이 커지는, 즉 p값이 작아지는 방향으로 가지분할을 수행하게 된다. 분산의 감소량도 이 값이 최대화되는 방향으로 가지분할을 수행하게 된다. 
+
+1. 정지규칙: 더 이상 분이가 일어나지 않고 현재의 마디가 최종마디가 되도록 하는 여러가지 규칙으로 최대 나무의 깊이, 자식마디의 최소 관측치 수, 카이제곱 통계량, 지니계수, 엔트로피 지수 등이 있다.
+
+2. 가지치기: 최종마디가 너무 많으면 모형이 과대적합된 상태로 현실문제에 적용할 수 있는 규칙이 나오지 않게 된다. 따라서 분류된 관측치의 비율 또는 MSE Mean Squared Error 등을 고려하여 수준의 가자치기 규칙을 제공해야 한다.
+
+의사결정나무 분석은 일반적으로 데이터 준비 --> 의사결정나무 만들기 --> 가지치기 --> 예측 및 모델 평가 단계로 진행한다. 
+
+```{r}
+#install.packages("rpart")
+library(rpart)
+
+data(iris)
+colnames(iris) <- tolower(colnames(iris))
+k <- rpart(species~., data = iris)
+k
+
+```
+가지치는 모양에 따라 들여쓰기하여 결과가 나온다. *은 잎사귀 노드, 각 노드에서 괄호 안에 표시된 숫자는 species별 비율을 의미한다. 
+
+2) Petal.length < 2.45...의미는 뿌리 노드에서 좌측 가지 밑에 위치한 노드. Petal.length < 2.45 기준을 만족하는 경우 setosa이고 50개의 데이터가 있다. 
+
+```{r}
+plot(k, compress = T, margin = 0.3)
+text(k, cex= 1.0)
+```
+
+```{r}
+#install.packages("rpart.plot")
+library(rpart.plot)
+prp(k, type = 4, extra = 2, digits = 3)
+```
+그림을 보면 Petal.Length <2.45인 걍우에 붓꽃 종이 setosa로 예측되며, 이에 해당하는 50개 데이터 모두가 실제로 setosa임을 알 수 있다. 
+
+```{r}
+head(predict(k, newdata = iris, type = "class"))
+```
+
+```{r}
+printcp(k) #error가 제일 낮은 부분 찾기
+
+plotcp(k)
+```
+```{r}
+#install.packages("caret")
+#install.packages("e1071")
+library(caret); library(e1071)
+
+rpartpred <- predict(k, iris, type = "class")
+confusionMatrix(rpartpred, iris$species)
+
+```
+
+##### 3. 의사결정나무의 장점
+1. 구조가 단순하여 해석이 용이하다.
+
+2. 유용한 입력변수의 파악과 예측변수 간의 상호작용 및 비선형성을 고려하여 분석이 가능하다.
+
+3. 선형성, 정규성, 등분산성 등의 수학적 가정이 불필요한 비모수적 모형이다.
+
+4. 계산 비용이 낮아 대규모의 데이터셋에서도 비교적 빠르게 연산이 가능하다.
+
+5. 수치형/범주형 변수를 모두 사용할 수 있다.
+
+##### 4. 의사결정나무 단점
+1. 분류 기준값의 경계선 부근의 자료값에 대해서는 오차가 크다. (비연속성)
+
+2. 로지스틱 회귀와 같이 각 예측변수의 효과를 파악하기 어렵다.
+
+3. 새로운 자료에 대한 예측이 불안정할 수 있다. 
+의
+의사결정나무 분석은 회귀분석이나 랜덤 포르스트 분석에 비해 직관적인 이해, 설명이 용이하다. 그리고 패키지 종류도 다양해 상황에 알맞는 패키지 선택 가능. 그러나 상대적으로 모델이 불안정하다. 그래서 주로 boostrapping, begging 등의 방법으로 사용함다. 활용분야는 고객 타겟팅, 고객들의 신용점수화, 캠페인 반응분석, 고객행동예측, 고객 세분화 등이 있다.
+
+### 앙상블 모형
+앙상블 모형은 여러 개의 분류모형을 종합하여 분류의 정확도를 높이는 방법. 이는 적절한 표본추출법으로 데이터에서 여러 개의 훈련용 데이터 집합을 만들어 각각의 데이터 집합에서 하나의 분류기를 만들어 앙상블 하는 방법이다.
+
+#### 1) 배깅 Bagging
+Bootstrap aggregating의 준말로 원 데이터 집합으로부터 같은 표본을 여러 번 단순 임의 복원추출하여 각 표본(붓스트랩 표본)에 대해 분류기classifier를 생성한 후 그 결과를 앙상블하는 방법이다. 반복 추출 방법을 사용하기 때문에 같은 데이터가 한 표본에 여러 번 추출될 수도 있고, 어떤 데이터는 추출되지 않을수도 있다. 
+
+과정: 주어진 데이터에서 여러개의 boostrap 자료를 생성 --> 각 자료에 대한 예측 모델 생성 --> 결합하여 최종모델 결정
+
+```{r}
+#install.packages("adabag")
+library(adabag)
+library(rpart)
+
+data(iris)
+
+colnames(iris) <- tolower(colnames(iris)) #이 부분이 빠지면 안돌아감
+set.seed(2)
+train <- c(sample(1:50, 25), sample(51:100, 25), sample(101:150, 25))
+
+iris.bagging <- bagging(species~., data = iris[train,],mfinal = 10, control = rpart.control(maxdepth = 1))
+
+iris.bagging
+
+```
+```{r}
+iris.bagging$importance
+```
+
+```{r}
+barplot(iris.bagging$importance)[order(iris.bagging$importance, decreasing = TRUE), #ylim = c(0,100), 
+                                 main = "Variable relative importance", col = "red"]
+```
+```{r}
+table(iris.bagging$class, iris$species[train], dnn = c("Predicted Class", "Observed Class"))
+```
+
+```{r}
+1-sum(iris.bagging$class == iris$species[train])/length(iris$species[train])
+```
+```{r}
+iris.predbagging <- predict.bagging(iris.bagging, newdata = iris[train,])
+iris.predbagging
+```
+#### 2) 부스팅 Boosting
+
+부스팅은 배깅의 과정과 유사하나 붓스트랩 표본을 구성하는 sampling 과정에서 각 자료에 동일한 확률을 부여하는 것이 아니라, 분류가 잘못된 데이터에 더 큰 가중을 주어 표본을 추출한다. Adaboosting은 가장 많이 사용되는 부스팅 알고리즘이다. 배깅과의 차이점은 분류가 잘못된 데이터에 가중치weight를 주어 표본을 추출한다는 점 외에는 동일하다.
+```{r}
+library(adabag)
+set.seed(1)
+train <- c(sample(1:50, 25), sample(51:100, 25), sample(101:150, 25))
+
+iris.adaboost <- boosting(species~., data = iris[train,], mfinal = 10, 
+                          control = rpart.control(maxdepth = 1) )
+iris.adaboost
+```
+
+```{r}
+table(iris.adaboost$class, iris$species[train], dnn = c("Predicted Class", "Observed Class"))
+```
+
+일반적으로 앙상블 모형이 단일 분류기보다 더 좋은 예측력을 갖기 위해서는 두 가지 조건이 필요하다. 
+1. 각각의 분류기는 상호 독립적이어야 한다.
+2. 각 분류기의 오뷴류율은 적어도 50% 보다는 낮아야 한다.
+
+##### 3) 랜덤 포레스트 random forest
+ 랜덤 포레스트는 배깅에 랜덤 과정을 추가한 방법이다. 각 노드마다 모든 예측변수 안에서 최적의 분할을 선택하는 방법 대신 예측변수들을 임의로 추출하고, 추출된 변수 내에서 최적의 분할을 만들어나가는 방법을 사용한다.
+ 
+ 랜덤 포레스트로 의사결정나무를 만들 때 데이터의 일부를 복원추출로 꺼내고 해당 데이터에 대해서만 만드는 방식과, 노드 내 데이터를 자식노드로 나누는 기준을 정할 때 전체 변수가 아니라 일부 변수만 대상으로 하여 가지를 나눌 기준을 찾는 방법이다. 의사결정마가 하나가 아니라 여러 개를 사용해 기존 하나의 의사결정나무를 사용할 때보다 과적합 문제를 피할 수 있다. 
+ 
+```{r}
+#install.packages("randomForest")
+library(randomForest); library(rpart)
+data(stagec)
+
+stagec3 <- stagec[complete.cases(stagec),]
+
+set.seed(1234)
+ind <- sample(2, nrow(stagec3), replace = TRUE, prob = c(0.7, 0.3))
+```
+ 
+```{r}
+train <- stagec3[ind == 1,]
+test <- stagec3[ind == 2,]
+
+rf <- randomForest(ploidy~., data = train, ntree=100, proximity = T, importance = T)
+```
+ 
+```{r}
+table(predict(rf), train$ploidy)
+```
+
+
+```{r}
+print(rf)
+```
+```{r}
+varImpPlot(rf)
+```
+ 
+### 서포트 벡터 머신 SVM, Support Vector Machine
+ 
+ 서로 다른 분류에 속한 데이터 간의 간격이 최대가 되는 선을 찾아 이를 기준으로 데이터를 분류하는 모델로, 서포트 벡터 머신 모델을 위한 패키지는 Kernlab, 21071 등이 있다. 특징에 따라 서로 유사한 그룹끼리 칸막이를 쳐서 나누는 것. 이 칸막이를 초평면(Hyperplane) 이라고 부른다. 
+ 
+ SVM은 분류, 수치 예측 등 거의 모든 학습 문제에 잘 대처하는데 특히 패턴 인식 분야에서 많이 활용되고 있다.
+ 
+ 1. SVM 장점: 에러율이 낮다. 결과를 해석하기 용이하다.
+ 
+ 2. SVM 단점: 튜닝 파라미터 및 커널 선택에 민감하다. 이진분류만 다룰 수 있다.
+ 
+```{r}
+#install.packages("e1071")
+library(e1071)
+
+data(iris)
+colnames(iris) <- tolower(colnames(iris))
+
+s <- sample(150, 100)
+col <- c("petal.length", "petal.width", "species")
+
+iris_train <- iris[s, col]
+iris_test <- iris[-s, col]
+
+iris_svm <- svm(species~., data = iris_train, cost = 1, kernel = "linear")
+```
+ 
+```{r}
+plot(iris_svm, iris_train[,col])
+```
+ 
+```{r}
+p <- predict(iris_svm, iris_test[,col], type = "class")
+plot(p)
+```
+ 
+```{r}
+table(p, iris_test[,3])
+```
+SVM에서는 파라미터 값을 정하는 것이 중요. 즉 코스트는 데이터를 얼마나 잘 나누는 지와 잘못 구분한 점으로 인한 비용의 합을 최소화하는 선을 찾는다. 즉 코스트를 사용해 과적합 정도를 조절하게 된다. 
+
+### 나이브 베이즈 분류모형
+
+베이즈 정리에 기반한 방법으로 사후확률(일종의 조건부 결합확률)의 계산 시 조건부 독립을 가정하여 계산을 단순화 한 방법으로 사후확률이 큰 집단으로 새로운 데이터를 분류하게 된다. 조건부 독립 가정이 비현실적인 측면이 있으나 계산이 간편하여 널리 이용되고 있다. 
+
+```{r}
+library(e1071)
+data(iris)
+
+colnames(iris) <-tolower(colnames(iris))
+m <- naiveBayes(species~., data = iris)
+m
+
+```
+```{r}
+table(predict(m, iris[,-5]), iris[,5], dnn = list("predicted", "actual"))
+```
+
+ 1. 나이브 베이즈 분류모형 장점: 지도학습 환경에서 매우 효율적, 분류에 필요한 파라미터를 추정하기 위한 training data가 매우 적어도 사용 가능, 분류가 multi-class에서 쉽고 빠르게 예측 가능
+ 
+ 2. 나이브 베이즈 분류모형 단점: training data에는 없고 test data에만 있는 범주에서는 0으로 나타나 정상적인 예측이 불가능한 zero frequency가 된다. (각 분자에 +1을 주면 해결), 서로 확률적으로 독립이라는 가정이 위반되는 경우에 오류가 발생할 수 있다.
+ 
+### K-NN, K-nearest neighbors
+
+K-NN 분류모형은 새로운 데이터에 대해 이와 가장 유사한(거리) K-개의 과거자료의 결과를 이용하여 다수결로 분류한다. 과거자료를 이용하여 미리 분류모형을 수립하는 것이 아니라, 과거 데이터를 저장만 해두고 필요시 새로운 데이터를 비교하여 분류하는 방식을 말한다. K-NN은 반응변수가 범주형인 경우에는 분류로, 반응변수가 연속형인 경우에는 회귀의 목적으로 사용할 수 있다.
+
+![](/Users/bogangjun/Desktop/Rmdfigures/knn.png)
+ 
+KNN은 학습이라고 할만한 절차가 없다. 새로운 데이터가 들어왔을 때, 기존 데이터 사이의 거리를 측정해서 이웃들을 뽑기 때문에 게으른 모델 lazy model 또는 사례기반학습 Instance-based learning 이라고 한다. 단점으로는 데이터의 지역 구조 local structure에 민감하다는 것이다. 
+
+참고: 분류와 군집의 구분, 분류는 클러스터링과 달리 최종 분석자가 목표변수 정의를 사전에 알고 있어야 한다. 분류의 목적은 데이터를 탐구하여 흥미를 유발하는 영역을 발견하는 데 있는 것이 아니라 새로운 데이터가 어떻게 분류될 수 있는 지 결정하는 것과 관련이 있다. 예) 새로운 고객은 대출에 대한 채무불이행을 할 것인가?
+
+```{r}
+library(DMwR)
+df <- sample(1:nrow(iris), as.integer(0.7*nrow(iris)))
+colnames(iris) <- tolower(colnames(iris))
+
+trainiris <- iris[df,]
+testiris <- iris[-df,]
+
+nc3 <- kNN(species~., trainiris, testiris, norm = FALSE, k = 3)
+
+table(testiris[,"species"], nc3)
+```
+
+```{r}
+nc3
+```
+
+
+```{r}
+nc5 <- kNN(species~., trainiris, testiris, norm = FALSE, k = 5)
+table(testiris[,"species"], nc5)
+```
+ 
+```{r}
+nc5
+```
+ 
+### 모형 평가
+
+적합한 모형을 선택하기 위해 성과 평가의 기준이 필요하다.
+
+기준은 일반화의 가능성, 효율성, 예측과 분류의 정확성
+
+1. 일반화의 가능성: 같은 모집단 내의 다른 데이터에 적용할 경우에도 안정적인 결과를 제공하는가?
+
+2. 효율성: 분류분석 무형이 얼마나 효과적으로 구축되었는지를 평가하는 것이다. 적은 입력변수를 필요로 할수록 효율성이 높다. 
+
+3. 예측과 분류릐 정확성은 실제 문제에 적용했을 때의 정확성을 의미한다. 
+
+taining data, test data로 나누어 모형 성과를 평가하고 과적합 문제를 해결하자.
+
+#### 1) 홀드 아웃 방법
+![](/Users/bogangjun/Desktop/Rmdfigures/holdout.png)
+
+
+#### 2) k-fold 교차검증
+1. 모델 평가를 위해서 데이터를 훈련 세트와 검증 세트로 나눌 때 데이터의 편향을 방지하기 위해 사용
+
+2. 데이터를 K개로 나누어 K-1개를 분할하고 나머지는 평가에 사용
+
+3. 모델의 검증 점수는 K개의 검증 점수 평균이 된다.
+
+
+![](/Users/bogangjun/Desktop/Rmdfigures/kfold.png)
+
+#### 3) 붓스트랩
+교차검증과 유사하나 훈련용 자료를 반복 선정한다는 차이가 있음. 복원추출법에 기반. 전체 데이터의 양이 크지 않은 경우 모형평가에 적합. 
+
+#### 4) 오분류표 Confusion matrix (중요중요)
+
+![](/Users/bogangjun/Desktop/Rmdfigures/confusionmatrix.png)
+매트릭스 방향이 반대로 나오는 문제도 있으니 주의하세요.
+
+#### 5) 오분류표를 활용한 평가지표
+정밀도 Precision, 정확도 Accuracy, Recall (Sensitivity, TP rate), Specificity, FP rate. F1, Kappa, ... 
+
+#### 6) ROC 그래프
+레이더 이미지 분석 성과를 측정하기 위해 개발된 ROC Receiver Operating Characteristic 그래프는 두 개의 모델을 비교 분석할 수 있다. x 축에는 FP Ratio, y축에는 민감도를 나타내어 이 두 평가값의 관계로 모델 평가. 밑부분 면적이 넓을수록 좋은 모형으로 평가한다. 
+![](/Users/bogangjun/Desktop/Rmdfigures/roc.png)
+```{r}
+set.seed(1234)
+str(infert)
+
+infert <- infert[sample(nrow(infert)), ]
+infert <- infert[, c("age", "parity", "induced", "spontaneous", "case")]
+
+traindata <- infert[1:nrow(infert) *0.7, ]
+testdata <- infert[(nrow(infert) *0.7+1):nrow(infert),]
+```
+
+```{r}
+#install.packages("neuralnet")
+library(neuralnet)
+
+net.infert <- neuralnet(case~age + parity + induced + spontaneous, data = traindata,
+                        hidden = 3, err.fct = "ce", linear.output = F, likelihood = T)
+n_test <- subset(testdata, select = -case)
+
+```
+
+
+```{r}
+head(n_test)
+```
+
+```{r}
+nn_pred <- compute(net.infert, n_test)
+testdata$net_pred <- nn_pred$net.result
+head(testdata)
+```
+
+```{r}
+#install.packages("C50")
+library(C50)
+traindata$case <- factor(traindata$case)
+dt.infert <- C5.0(case~ age + parity + induced + spontaneous, data = traindata)
+testdata$dt_pred <- predict(dt.infert, testdata, type = "prob")[,2]
+head(testdata)
+```
+```{r}
+#install.packages("Epi")
+library(Epi)
+neural_ROC <- ROC(form = case ~net_pred, data = testdata, pplot = "ROC")
+dtree_ROC <- ROC(form = case ~dt_pred, data = testdata, pplot = "ROC")
+```
+
+
+#### 7) 이익도표와 향상도
+이익gain은 목표 범주에 속하는 개체들이 각 등급에 얼마나 분포하고 있는지를 나타내는 값으로, 해당 등급에 따라 계산된 이익값을 누적으로 연결한 도표가 이익도표이다. 향상도곡선 lift curve는 랜덤모델과 비교하여 해당 모델의 성과가 얼마나 향상되었는지를 각 등급별로 파악하는 그래프이다. 
+```{r}
+#install.packages("ROCR")
+library(ROCR)
+
+n_r <- prediction(testdata$net_pred, testdata$case)
+d_r <- prediction(testdata$dt_pred, testdata$case)
+n_p <- performance(n_r, "tpr", "fpr")
+d_p <- performance(d_r, "tpr", "fpr")
+
+plot(n_p, col="red")
+par(new = TRUE)
+plot(d_p, col = "blue")
+abline(a = 0, b = 1)
+```
+
+

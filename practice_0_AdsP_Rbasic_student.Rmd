@@ -1,0 +1,122 @@
+---
+title: "R 기초 함수"
+output: html_notebook
+---
+###  R Package 이용하기
+#### 1) R package란? 
+R은 오픈소스 프로그램이므로 다양한 개인들이 자신들만의 함수로 여러 기능을 제작하여 누구나 설치할 수 있는 패키지 형태로 배포하고 있다. 이를 통해 최신 통계 이론을 적용한 패키지를 설치하여 분석을 실시할 수도 있고 각종 복잡한 그래프 설정에 대해 미리 정의해준 패키지를 설치하면 복잡한 그림들을 손쉽게 그릴 수도 있다. 또한 기본 프로그램인 R에서 지원하지 않는 명령어나 함수를 사용할 수 있으며 유용한 데이터셋이 내장되어 있는 패키지를 이용할 수도 있다.
+
+#### 2) R package 설치하고 이용하기
+```{r}
+##install.packages("RODBC")
+#library(RODBC)
+getwd()
+```
+
+### 외부 데이터 불러오기
+#### 1) CSV 파일 불러오기
+```{r}
+# set your working directory
+
+# without setting working directory
+```
+
+#### 2) txt 파일 불러오기
+```{r}
+# set your working directory
+
+# without setting working directory
+
+```
+
+#### 3) 엑셀 파일 불러오기
+엑셀 파일을 csv로 저장하여 csv로 불러오거나 라이브러리를 이용하여 엑셀을 바로 불러올 수 있다.
+```{r}
+#Use library "readxl"
+library(readxl)
+
+# set your working directory
+
+
+```
+
+
+### R 기초 함수
+#### 1) 수열 생성하기 
+
+```{r}
+rep(1,3)
+rep(2:5,3)
+ #rep 함수는 첫번째 인수를 두번째 인수만큼 반복하는 숫자 벡터 
+
+seq(1,3)
+seq(1,11, by=2)
+seq(1,11, length=7)
+ #seq 함수는 첫번째 인수부터 두번째 인수까지 1 씩 증가하는 숫자 벡터를 생성한다
+ #seq 함수에 by = n 옵션을 추가하여 n 씩 증가하는 수열 생성
+ #length = m 옵션을 추가하면 전체 수열의 갯수가 m개가 되도록 자동적으로 증가하는 수열 생성
+```
+
+#### 2) 기초적인 행렬계산
+```{r}
+a <- 1:10
+a
+a + a
+a - a
+
+a <- c(2,7,3)
+a
+t(a)
+#전치행렬 형성
+
+z<- a %*% t(a) #행렬곱
+
+A <- matrix(c(23,41,12,35,67,1,24,7,53), nrow = 3)
+A
+5 * A  # 스칼라 곱
+ solve(A)# 역행렬 계산
+```
+
+#### 3) 기초적인 대푯값 및 분산 계산
+```{r}
+# mean, var, sd 함수는 각각 입력한 벡터의 평균, 분산, 표준편차를 계산해준다
+c <- 1:10
+mean(c)
+var(c)
+sd(c)
+```
+
+
+#### 4) 기초적인 변환 및 상관계수, 공분산
+
+```{r}
+# sum, median, log 함수를 이용해서 벡터들의 합, 중앙값, 자연로그값을 계산할 수 있다. 
+sum(c)
+median(c)
+log(c)
+
+# 서로 다른 두 벡터에 대해서는 cov, cor 함수를 이용해 공분산과 상관계수를 구할 수 있다. 
+a <- 1:10
+b <- log(c)
+
+cov(a,b)
+cor(a,b)
+
+summary(a)
+```
+
+Correlation is the way to quantify the strength of relationship. 
+Correlation coefficient between -1 and 1
+Sign --> direction
+Magnitude --> strength (around 0.5 moderate, around 0.2 week) ONLY WHEN the relationship is linear.
+There are cases that have low correlation but non-linear strong relationship. 
+
+Pearson product-moment correlation: 
+$$ r(x,y) = \frac{Cov(x,y)}{\sqrt{S_{XX}*S_{YY}}}$$
+$$ r(x,y) = \frac{\sum^n_{i = 1}(x_i- \bar x)(y_i- \bar y)}{\sum^n_i(x_i- \bar x)^2 \cdot \sum^n_i(y_i- \bar y)^2} $$
+
+
+
+
+
+

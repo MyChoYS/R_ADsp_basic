@@ -1,0 +1,1050 @@
+
+---
+title: "자기가 원하는 제목"
+mainfont: NanumGothic
+output:
+  word_document: default
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+#1. Conditionals and control flow
+
+## 1) Relational operator: Equality (==) and ineuqality (!=)
+
+The most basic form of comparison is equality. Let's briefly recap its syntax. The following statements all evaluate to TRUE (feel free to try them out in the console).
+
+```{r}
+a <- 3
+b == 1 
+b <-1 
+b == 1
+3 != (2+1)
+
+```
+```{r}
+"intermediate" != "r"
+"R" == "r"
+```
+
+Notice from the last expression that R is case sensitive: "R" is not equal to "r". 
+
+## 2) Greater than and less than (> and <)
+Apart from equality operators,  there are also the less than and greater than operators: < and >. You can also add an equal sign to express less than or equal to or greater than or equal to, respectively. Have a look at the following R expressions, that all evaluate to FALSE:
+```{r}
+a > b 
+a >= b
+```
+```{r}
+"dog" < "cats"
+"aog" < "cats"
+TRUE >= FALSE
+```
+
+Remember that for string comparison, R determines the greater than relationship based on alphabetical order. 
+Also, TRUE corresponds to 1, while FALSE corresponds to 0
+
+###Compare vectors
+We are already aware that R is very good with vectors. Without having to change anything about the syntax, R's relational operators also work on vectors.
+
+Here is the example: You want to figure out whether your activity on social media platforms have paid off and decide to look at your results for Cyworld and Facebook. Each of the vectors contains the number of profile views your Cyworld and Facebook profiles had over the last seven days.
+
+```{r}
+cyworld <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+
+# Popular days(MON, TUE , WED ---)
+cyworld > 15 
+facebook > 15
+
+# Quiet days
+cyworld <= 5
+facebook <=5 
+
+# cyworld more popular than Facebook
+
+```
+
+### Compare matrices
+R's ability to deal with different data structures for comparisons does not stop at vectors. Matrices and relational operators also work together seamlessly!
+
+Instead of in vectors (as in the previous exercise), the Cyworld and Facebook data is now stored in a matrix called views. The first row contains the Cyworld information; the second row the Facebook information. 
+
+```{r}
+# The social data has been created for you
+cyworld <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+views <- matrix(c(cyworld, facebook), byrow = TRUE, nrow = 2)
+views
+## "byrow = TRUE"  heng = garo bu-tu chae-um
+
+# When does views equal 13?
+views == 13
+
+# When is views less than or equal to 14?
+views <= 14
+
+```
+
+## 3) AND operator = &
+```{r}
+TRUE & TRUE
+```
+```{r}
+TRUE & FALSE
+```
+```{r}
+c(TRUE, TRUE) & c(TRUE, FALSE)
+```
+
+## 4) OR operator = | -> shift + \ = |
+```{r}
+TRUE | TRUE
+TRUE | FALSE
+FALSE | FALSE
+```
+```{r}
+c(TRUE, TRUE) | c(TRUE, FALSE)
+```
+
+## 5) NOT operator !
+```{r}
+!TRUE
+!FALSE
+```
+
+```{r}
+is.numeric(5)
+!is.numeric(5)
+## is numeric ? (5) >> yes >> true
+```
+
+
+## 6) Practice
+```{r}
+x <- 5
+
+x >3 & x < 15
+x >3 & x > 15
+```
+
+```{r}
+x <- 5
+x < 6 & x > 15
+```
+```{r}
+x <- 5 
+x >3 | x > 15 
+```
+```{r}
+5 <= 5 & 2 < 3 
+```
+3 < x < 7 to check if x is between 3 and 7 will not work; you'll need 3 < x & x < 7 for that.
+
+
+### & and &&, | and || are different: single sign operator returns for every elements of vector, while double sign operator returns for the entire elements of vector.
+
+The last variable equals the last value of the cyworld vector. The cyworld vector represents the number of Cyworld views your profile had in the last seven days.
+```{r}
+cyworld <- c(16, 9, 13, 5, 2, 17, 14)
+last <- tail(cyworld, 1)
+
+# Is last under 5 or above 10?
+last < 5 | last > 10
+
+# Is last between 15 (exclusive) and 20 (inclusive)?
+last > 15 & last <= 20
+
+```
+
+Like relational operators, logical operators work perfectly fine with vectors and matrices.
+```{r}
+# cyworld exceeds 10 but facebook below 10
+cyworld > 10 & facebook <10 
+
+# When were one or both visited at least 12 times?
+cyworld > 12 | facebook > 12
+
+# When is views between 11 (exclusive) and 14 (inclusive)?
+views > 11 & views <= 14
+```
+
+Instead of recording the number of views for your own cyworld profile, suppose you conducted a survey inside the company you're working for. You've asked every employee with a cyworld profile how many visits their profile has had over the past seven days. 
+```{r}
+day_1 <- c(1,10, 19, 22, 0, 7, 32, 13, 9, 22)
+day_2 <- c(2, 20, 23, 18, 4, 17, 35, 13, 6, 22)
+day_3 <- c(3, 30, 18, 27, 2, 9, 31, 20, 3, 17 )
+day_4 <- c(4, 40, 22, 26, 2, 12, 35, 17, 12, 20)
+day_5 <- c(5, 30, 23, 19, 3, 13, 25, 22, 3, 14)
+day_6 <- c(6, 20, 29, 21, 4, 6, 25, 22, 8, 19)
+day_7 <- c(0, 10, 25, 25, 2, 12, 36, 20, 6, 13)
+
+dailyview <- data.frame(day_1, day_2, day_3, day_4, day_5, day_6, day_7)
+
+# Select the second column, named day2, from li_df: second
+seconColumn <- dailyview[ , 2]
+seconColumn
+# Build a logical vector, TRUE if value in second is extreme: extremes
+extremes <- seconColumn > 25 | seconColumn < 5
+extremes
+# Count the number of TRUEs in extremes(TRUE = 1)
+sum(extremes)
+
+```
+
+## 7) Conditional statement (조건문)
+### if statement
+
+if (condition){
+  expr
+}
+
+```{r}
+x <- 6
+if (x > 5){
+  print("x is greater that 5")
+}
+```
+
+### else statement
+if (condition){
+ expr
+} else {
+ expr2
+}
+```{r}
+x <- -4
+
+if (x > 5) {
+  print("x is greater than 5")
+}else {
+  print("x is less than 5")
+}
+```
+
+### else if statement
+if (condition1){
+expr1
+} else if (condition2) {
+expr2
+} else {
+expr3
+}
+```{r}
+x <- 0
+
+if (x > 0){
+  print("x is positive")
+} else if (x == 0){
+  print("x is zero")
+} else {
+  print("x is negative")
+}
+```
+ conditions should be mutually exculusive.=("교집합이 없어야함")
+ 
+```{r}
+media <- "Cyworld"
+num_view <- 10
+
+# Examine the if statement for medium
+if (media == "Cyworld"){
+  print("showing Cyworld information")
+}
+
+# Write the if statement for num_views
+if (num_view >= 10){
+  print("you're popular")
+}
+
+```
+
+Let's use else statement
+```{r}
+media <- "Instagram"
+if (media == "Cyworld"){
+  print("showing Cyworld information")
+} else if (media == "Facebook"){
+  print("showing Facebook information")
+} else {
+  print("Unknown media")
+}
+```
+
+Let's practice else if statement
+```{r}
+media <- "Cyworld"
+num_view <- 9
+if (media == "Cyworld" & num_view == 10) {
+  print("right")
+} else{
+  print("no")
+}  
+
+```
+
+You can do anything you want inside if-else constructs.
+```{r}
+number <- 99
+if (number < 10){
+  if (number < 5){
+    result <- "extra small"
+  } else {
+    result <- "small"
+  }
+} else if( number < 100){
+  result <- "medium"
+} else {
+  result <- "large"
+}
+print(result)
+```
+
+```{r}
+# Variables related to your last day of recordings
+cy <- 15
+fb <- 9
+
+# Code the control-flow construct
+if (cy >= 15 & fb >= 15) {
+  sms <- 2 * (cy + fb)
+} else if (cy < 10 & fb < 10) {
+  sms <- 0.5 * (cy + fb)
+} else {
+  sms <- cy + fb
+}
+
+# Print the resulting sms to the console
+print(sms)
+```
+
+#2. Loops 
+
+## 1) While loop
+while (condition) {
+expr
+}
+
+```{r}
+condition1 <- 1
+while (condition1 <= 7){
+  print(paste("condition is set to",condition1))
+  condition1 <- condition1 + 1
+}
+##?paste
+
+```
+
+```{r}
+# Initialize the speed variable
+speed <- 64
+
+# Code the while loop
+while (speed >30){
+  print("slow down!")
+  print(speed)
+  speed <- speed - 7
+}
+
+# Print out the speed variable
+speed
+```
+
+```{r}
+# Initialize the speed variable
+speed <- 64
+
+
+# Extend/adapt the while loop
+while (speed > 30){
+  print(paste("Your speed is", speed))
+  if (speed > 48){
+    print("slow down big time!")
+    speed <- speed -11
+  } else{
+    print("slow down")
+  }
+  speed <- speed -5 
+}
+```
+
+## 2) break statement
+```{r}
+condition1 <- 1
+while (condition1 <= 7){
+  if (condition1 %% 3 == 0 ){
+    break
+  }
+  print(paste("condition is set to",condition1))
+  condition1 <- condition1 + 1
+  
+}
+
+```
+
+```{r}
+# Initialize the speed variable
+speed <- 88
+
+while (speed > 30){
+  print(paste("Your speed is", speed))
+  if (speed <48){
+    break
+  }
+  
+  if (speed >=80){
+    print("Slow down big time!")
+    speed <- speed -11
+  } else {
+    print("Slow down")
+    speed <- speed - 6
+  }
+}
+
+
+  
+  # Break the while loop when speed exceeds 80
+  
+```
+
+```{r}
+# Initialize i as 1 
+i <- 1
+
+
+# Code the while loop
+while (i <= 10){
+  print(3*i)
+  if ((3*i) %% 8 == 0){
+    break
+  }
+  i <- i + 1
+}
+```
+
+## 3. For loop
+for (var in seq) {
+expr
+}
+
+### Loop over a vector
+```{r}
+cities <- c("New York", "Paris", "Seoul", "Beijing", "London", "Tokyo")
+
+for (city in cities) {
+  print(city)
+}
+
+```
+
+with break statement
+```{r}
+cities <- c("New York", "Paris", "Seoul", "Beijing", "London", "Tokyo")
+
+for (city in cities){
+  if (nchar(city) == 6){
+    break
+  }
+    print(city)
+}
+```
+
+Other way: we want to know the location of each element.*******
+```{r}
+cities <- c("New York", "Paris", "Seoul", "Beijing", "London", "Tokyo")
+
+
+for (i in 1:length(cities)){
+  print(paste(cities[i], "is on position",i,"in the cities vector"))
+}
+```
+Sometimes, this way is useful.
+
+```{r}
+primes <- c(2, 3, 5, 7, 11, 13)
+
+# loop version 1
+for (p in primes){
+  print(p)
+}
+
+# loop version 2
+for ( i in 1:length(primes)){
+  print(primes[i])
+}
+
+```
+
+Remember our CyWorld vector? It's a vector that contains the number of views your CyWorld profile had in the last seven days. 
+```{r}
+# The linkedin vector has already been defined for you
+cy <- c(16, 9, 13, 5, 2, 17, 14)
+
+# Loop version 1
+for (i in cy){
+  print(i)
+}
+
+# Loop version 2
+for (i in 1:length(cy)){
+  print(cy[i])
+}
+
+```
+
+### Loop over a list
+Looping over a list is just as easy and conveneient as looping over a vector. There are again two different approaches here:
+```{r}
+primes_list <- list(2, 3, 5, 7, 11, 13)
+
+# loop version 1
+for (data in primes_list){
+  print(data)
+}
+
+# loop version 2
+for (i in 1:length(primes_list)){
+  print(primes_list[i])
+}
+for (i in 1:length(primes_list)){
+  print(primes_list[[i]])
+}
+###[[]] -> ***
+```
+
+Suppose you have a list of all sorts of information on New York City: its population size, the names of the boroughs, and whether it is the capital of the United States. (Source: Wikipedia)
+```{r}
+# The nyc list is already specified
+nyc <- list(pop = 8405837, 
+            boroughs = c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island"), 
+            capital = FALSE)
+
+# Loop version 1
+for (i in nyc){
+  print(i)
+}
+
+# Loop version 2
+for (i in 1:length(nyc)){
+  print(nyc[[i]])
+}
+
+for (i in 1:length(nyc)){
+  print(nyc[i])
+}
+
+```
+Notice that you need [double square] brackets - [[ ]] - to select the list elements in loop version 2.
+
+### Loop over a matrix
+
+for (var1 in seq1) {
+  for (var2 in seq2) {
+    expr
+  }
+}
+
+ttt matrix represents the status of a tic-tae-toe game. It contains the value "X", "O" and NA. 
+```{r}
+v <- c("O", NA, "X", NA, "O", NA, "X", "O", "X")
+ttt <- matrix(v, nrow = 3)
+ttt
+
+# define the double for loop
+for (i in 1:3){
+  for(j in 1:3){
+    print(ttt[i,j])
+   }
+}
+
+for (i in 1:3){
+  for (j in 1:3){
+    print(paste("on row",i, "and column",j, "the board contains", ttt[i,j]))
+  }
+}
+```
+
+Let's mix the different kinds of loop up together!
+```{r}
+# The CyWorld vector
+cy <- c(16, 9, 13, 5, 2, 17, 14)
+
+# Code the for loop with conditionals
+for (li in cy){
+   print(li)
+  if(li > 10){
+    print("You are popular!")
+  } else {
+    print("Be more visible!")
+  }
+ }
+```
+
+Next, you break it.##next가 나오면, 바로 그 문장은 끝이 나고 맨 위로 올라감. break는 바로 멈춤
+```{r}
+# The CyWorld vector has already been defined for you
+CyWorld <- c(16, 9, 13, 5, 2, 17, 14)
+
+# Extend the for loop
+for (cy in CyWorld){
+  if (cy > 10){
+    print("You are popular!")
+  } else {
+    print("Be more visible!")
+  }
+  if (cy >16){
+    print("This is ridiculous!")
+    break
+  }
+  if (cy < 5){
+  print("this is too embarrassing!")
+    next
+  }  
+  print(cy)
+}
+  
+```
+
+```{r}
+# Pre-defined variables
+rquote <- "r's internals are irrefutably intriguing"
+chars <- strsplit(rquote, split = "")[[1]]
+
+# Initialize rcount
+rcount <- 0
+
+# Finish the for loop
+for (char in chars){
+  print(char)
+  if (char == "r"){
+    rcount = rcount + 1
+  } else if (char == "u"){
+    break
+  }
+}
+
+# Print out rcount
+print(rcount)
+```
+
+# 3. Functions
+We already use several functions, like list(), str(), data.frame(), etc.
+Functions work like a black box. When you put input in a black box, you can get ourput, although you don't know what's inside of the box.
+
+Call function in R: function name + ()
+Here is the example: sd() function. 
+```{r}
+v <- c(1,2,3,4)
+sd(v)
+```
+
+Function documentation can be seen using help(sd) and ?sd.
+```{r}
+help(sd)
+```
+
+```{r}
+?sd
+```
+You can see two arguments:x, na.rm
+Argument matching: by position or by name
+
+Here, first argument of sd() is matched by position. 
+na.rm is matched either by position or by name. 
+```{r}
+v <- c(1,2,3,NA)
+sd(v)
+
+```
+
+```{r}
+sd(v,na.rm = TRUE)
+```
+
+```{r}
+sd(v, TRUE)
+```
+
+Please check which element has default value.
+Function arguments can have defaults. 
+
+Useful trick is args(sd)
+```{r}
+args(sd)
+```
+
+Before usage of R function, you should clarify which arguments it expects. All the relevant details such as a description, usage, and arguments can be found in the documentation. To consult the documentation on the sample() function, for example, you can use one of following R commands:
+```{r}
+help(sample)
+?sample
+```
+You can search the documentation of a function in www.rdocumentation.org.
+
+A quick hack to see the arguments of the sample() function is the args() function. Try it out in the console:
+```{r}
+args(sample)
+```
+
+In the next exercises, you'll be learning how to use the mean() function with increasing complexity. The first thing you'll have to do is get acquainted with the mean() function.
+```{r}
+help(mean)
+args(mean)
+```
+
+## 1) Example 1: mean function
+The documentation on the mean() function gives us quite some information:
+  The mean() function computes the arithmetic mean.
+  The most general method takes multiple arguments: x and ....
+  The x argument should be a vector containing numeric, logical or time-related information.
+
+Remember that R can match arguments both by position and by name. 
+
+Once more, you'll be working with the view counts of your social network profiles for the past 7 days. These are stored in the cyworld and facebook vectors.
+```{r}
+# The cyworld and facebook vectors have already been created for you
+cyworld <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+
+# Calculate average number of views
+avg_cy <- mean(cyworld)
+avg_fb <- mean(facebook)
+# Inspect avg_li and avg_fb
+print(avg_cy)
+print(avg_fb)
+```
+
+Check the documentation on the mean() function again:
+```{r}
+?mean
+```
+
+The Usage section of the documentation includes two versions of the mean() function. 
+The first usage,
+mean(x,...) 
+is the most general usage of the mean function. 
+
+The 'Default S3 method', however, is:
+mean(x, trim = 0, na.rm = FALSE, ...)
+The ... is called the ellipsis. It is a way for R to pass arguments along without the function having to name them explicitly. The ellipsis will be treated in more detail in future courses. Notice that both trim and na.rm have default values. This makes them optional arguments.
+
+```{r}
+# The cyworld and facebook vectors have already been created for you
+cyworld <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+
+# Calculate the mean of the sum
+avg_sum <- mean(c(cyworld, facebook))
+
+# Calculate the trimmed mean of the sum
+avg_sum_trimmed <- mean(c(cyworld, facebook), trim = 0.2)
+
+# Inspect both new variables
+print(avg_sum)
+print(avg_sum_trimmed)
+```
+
+## 2) Example 2: sd function
+The sd() function has an optional argument, na.rm that specified whether or not to remove missing values from the input vector before calculating the standard deviation.
+
+If you've had a good look at the documentation, you'll know by now that the mean() function also has this argument, na.rm, and it does the exact same thing. By default, it is set to FALSE, as the Usage of the default S3 method shows:
+mean(x, trim = 0, na.rm = FALSE, ...)
+
+```{r}
+cyworld <- c(16, 9, 13, 5, NA, 17, 14)
+facebook <- c(17, NA, 5, 16, 8, 13, 14)
+
+# Basic average of cyworld
+print(mean(cyworld))
+
+# Advanced average of cyworld
+print(mean(cyworld, na.rm = TRUE))
+```
+Above example shows that functions can locate inside of functions. 
+
+```{r}
+speed <- 31
+print(paste("Your speed is", speed))
+
+```
+Notice that both the print() and paste() functions use the ellipsis - ... - as an argument. Can you figure out how they're used?
+
+Use abs() on cyworld - facebook to get the absolute differences between the daily cyworld and Facebook profile views. Next, use this function call inside mean() to calculate the Mean Absolute Deviation. In the mean() call, make sure to specify na.rm to treat missing values correctly.
+```{r}
+# The cyworld and facebook vectors
+cyworld <- c(16, 9, 13, 5, NA, 17, 14)
+facebook <- c(17, NA, 5, 16, 8, 13, 14)
+
+# Calculate the mean absolute deviation using abs()
+mean(abs(cyworld - facebook), na.rm = TRUE)
+```
+
+### Required, or optional?
+By now, you will probably have a good understanding of the difference between required and optional arguments. Let's refresh this difference by having one last look at the mean() function:
+
+mean(x, trim = 0, na.rm = FALSE, ...)
+
+x is required; if you do not specify it, R will throw an error. trim and na.rm are optional arguments: they have a **default value** which is used if the arguments are not explicitly specified.
+
+## 3) Writing your own functions
+
+### When write your own?
+Solve a particular, well-defined problem
+Black box principle
+If it works, inner workings less important
+
+### How to write?
+my_function <- function(arg1, arg2){
+
+}
+Notice that this recipe uses the assignment operator (<-) just as if you were assigning a vector to a variable for example. This is not a coincidence. Creating a function in R basically is the assignment of a function object to a variable! In the recipe above, you're creating a new R variable my_fun, that becomes available in the workspace as soon as you execute the definition. From then on, you can use the my_fun as a function.
+
+```{r}
+# Let's define a new function!
+triple  <- function(x){
+  3 * x
+}
+```
+```{r}
+# Let's use it!
+triple(2)
+```
+
+You can put return()
+```{r}
+triple  <- function(x){
+  y <- 3 * x
+  return(y)
+}
+```
+Adding return() is not always useful but sometimes it is useful.
+Her is the example:
+```{r}
+test_math <- function(a,b){
+  a*b + a/b
+}
+```
+```{r}
+test_math(4,0)
+```
+In this case, we can use return() function inside of our own function.
+```{r}
+test_math <- function(a,b){
+  if(b == 0){
+    return(0)
+  }
+  a*b + a/b
+}
+```
+```{r}
+test_math(4,0)
+```
+
+### Practice
+Create a function pow_two(): it takes one argument and returns that number squared (that number times itself).
+Call this newly defined function with 12 as input.
+Next, create a function sum_abs(), that takes two arguments and returns the sum of the absolute values of both arguments.
+Finally, call the function sum_abs() with arguments -2 and 3 afterwards.
+
+### Write your own function that doesn't require input
+There are situations in which your function does not require an input. Let's say you want to write a function that gives us the random outcome of throwing a fair die:
+```{r}
+throw_die <- function() {
+  number <- sample(1:6, size = 1)
+  number
+}
+
+throw_die()
+```
+
+### Practice
+Define a function, hello(). It prints out "Hi there!" and returns TRUE. It has no arguments.
+Call the function hello(), without specifying arguments of course.
+
+### Write your own function that has a defualt value
+Do you still remember the difference between an argument with and without default values? Have another look at the sd() function by typing ?sd in the console. The usage section shows the following information:
+
+sd(x, na.rm = FALSE)
+
+This tells us that x has to be defined for the sd() function to be called correctly, however, na.rm already has a default value. Not specifying this argument won't cause an error.
+
+You can define default argument values in your own R functions as well. You can use the following recipe to do so:
+
+my_fun <- function(arg1, arg2 = val2) {
+  body
+}
+
+### Function scoping
+Function scoping implies that variables that are defined inside a function are not accessible outside that function. Try running the following code and see if you understand the results:
+```{r}
+pow_two <- function(x) {
+  y <- x ^ 2
+  return(y)
+}
+pow_two(4)
+#y
+x
+```
+y was defined inside the pow_two() function and therefore it is not accessible outside of that function. This is also true for the function's arguments of course - x in this case.
+
+Here is another example:
+```{r}
+two_dice <- function() {
+  possibilities <- 1:6
+  dice1 <- sample(possibilities, size = 1)
+  dice2 <- sample(possibilities, size = 1)
+  dice1 + dice2
+}
+two_dice()
+two_dice()
+```
+Whatever the way of calling the two_dice() function, R won't have access to dice1 and dice2 outside the function.
+
+### R passes arguments by value
+R passes arguments by value. What does this mean? Simply put, it means that an R function cannot change the variable that you input to that function. Let's look at a simple example (try it in the console):
+```{r}
+triple <- function(x) {
+  x <- 3*x
+  x
+}
+a <- 5
+triple(a)
+a
+```
+Inside the triple() function, the argument x gets overwritten with its value times three. Afterwards this new x is returned. If you call this function with a variable a set equal to 5, you obtain 15. But did the value of a change? If R were to pass a to triple() by reference, the override of the x inside the function would ripple through to the variable a, outside the function. However, R passes by value, so the R objects you pass to a function can never change unless you do an explicit assignment. a remains equal to 5, even after calling triple(a)
+
+Now that you've acquired some skills in defining functions with different types of arguments and return values, you should try to create more advanced functions. As you've noticed in the previous exercises, it's perfectly possible to add control-flow constructs, loops and even other functions to your function body.
+
+### Practice
+Remember our social media example? Using vectors cyworld and facebook, you will be writing a function that can interpret a single value of this vector. Then, you will write another function that can handle an entire vector at once.
+
+Let's write the function definition for interpret(), that interprets the number of profile views on a single day:
+The function takes one argument, num_views.
+If num_views is greater than 15, the function prints out "You're popular!" to the console and returns num_views.
+Else, the function prints out "Try to be more visible!" and returns 0.
+Finally, call the interpret() function twice: on the first value of the linkedin vector and on the second element of the facebook vector.
+
+```{r}
+cyworld <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+
+# Define the interpret function
+interpret <- function(num_views) {
+  if (num_views > 15) {
+  print("You're popular!" )
+  return(num_views)
+  } else {
+ print("Try to be more visible!")
+ return(0)
+  }
+}
+
+# Call the interpret function twice
+interpret(cyworld[1])
+interpret(facebook[2])
+
+```
+
+In this exercise you'll be writing another function that will use the interpret() function to interpret all the data from your daily profile views inside a vector. Furthermore, your function will return the sum of views on popular days, if asked for. A for loop is ideal for iterating over all the vector elements. The ability to return the sum of views on popular days is something you can code through a function argument with a default value.
+
+Finish the template for the interpret_all() function:
+
+Make return_sum an optional argument, that is TRUE by default.
+Inside the for loop, iterate over all views: on every iteration, add the result of interpret(v) to count. Remember that interpret(v) returns v for popular days, and 0 otherwise. At the same time, interpret(v) will also do some printouts.
+Finish the if construct:
+If return_sum is TRUE, return count.
+Else, return NULL.
+Call this newly defined function on both linkedin and facebook.
+```{r}
+# The linkedin and facebook vectors have already been created for you
+linkedin <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+
+# The interpret() can be used inside interpret_all()
+interpret <- function(num_views) {
+  if (num_views > 15) {
+    print("You're popular!")
+    return(num_views)
+  } else {
+    print("Try to be more visible!")
+    return(0)
+  }
+}
+
+# Define the interpret_all() function
+# views: vector with data to interpret
+# return_sum: return total number of views on popular days?
+interpret_all <- function(views, return_sum = TRUE) {
+  count <- 0
+
+  for (v in views) {
+    count <- count + interpret(v)
+  }
+
+  if (return_sum) {
+    return(count)
+  } else {
+    return(NULL)
+  }
+}
+
+# Call the interpret_all() function on both linkedin and facebook
+interpret_all(linkedin)
+interpret_all(facebook)
+```
+
+## 4) R Packages
+Where do mean(), list(), and sample() come from?
+part of R packages
+Code, data, documentation and tests
+Easy to share
+Examples: ggplot2
+
+### Install packages
+base package: automatically installed
+ggvis package: not installed yet
+type in the console: install.packages("ggvis")
+CRAN: Comprehensive R Archaive Network
+
+### Load packages: library()
+load package == attach to search list
+```{r}
+search()
+```
+7 packages are attached by default
+
+### Load packages: library
+making the package available in your current R session
+```{r}
+
+```
+
+### Load packages: require()
+```{r}
+
+```
+If you take a look at the source code of require, you will see that require() basically means ???try to load the package using library() and return a logical value indicating the success or failure???. In other words, library() loads a package, and require() tries to load a package. So when you want to load a package, do you load a package or try to load a package? It should be crystal clear.
+
+### Practice
+Load the ggplot2 packge, calling qplot() to draw a graph, check tje currently attached packages
+```{r}
+# Load the ggplot2 package
+
+
+# Retry the qplot() function
+
+
+# Check out the currently attached packages again
+
+```
+
+
+
+
+
+
+
+
